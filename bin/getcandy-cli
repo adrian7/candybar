@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+/**
+ * PHPUnit CI Tools CLI
+ * @version 0.1
+ */
+
+require ( __DIR__ . '/../vendor/autoload.php' );
+
+$description = <<<EOT
+Get Candy - retrieves and summarize PHPUnit output plus it generates badges.
+EOT;
+
+//Process commands
+\PHPUnit\Candies\Cli::main();

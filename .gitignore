@@ -1,0 +1,5 @@
+.env
+composer.lock
+/vendor
+phpunit.xml
+docker-compose.yml
