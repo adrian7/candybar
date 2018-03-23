@@ -5,11 +5,11 @@
  * @version 1.0
  */
 
-namespace PHPUnit\Candies\Coverage;
+namespace DevLib\Candybar\Coverage\Stats;
 
-use PHPUnit\Candies\Util;
+use DevLib\Candybar\Util;
 
-class Clover{
+class Clover implements StatisticsInterface{
 
     /**
      * Clover xml file
@@ -55,16 +55,14 @@ class Clover{
     /**
      * Parse metrics from file
      */
-    protected function parseMetrics(){
+    public function parseMetrics(){
 
         $metrics = Util::getCloverXmlMetrics($this->filename);
 
-        if( isset($metrics['metrics'][0]) )
-            $metrics = $metrics['metrics'][0];
-        else
+        if( $metrics and isset($metrics['loc']) ); else
             throw new \InvalidArgumentException("Could not extract metrics from file {$this->filename}... .");
 
-        //init class metrics
+        //Init metrics
         $this->numFiles = data_get($metrics, 'files', 0);
 
         $this->linesOfCode    = data_get($metrics, 'ncloc', 0);
@@ -100,16 +98,20 @@ class Clover{
         return $this->coveredElements;
     }
 
+    /**
+     * Statements count
+     * @return mixed
+     */
     public function statementsCount(){
         return $this->statements;
     }
 
+    /**
+     * Covered statements count
+     * @return mixed
+     */
     public function coveredStatementsCount(){
         return $this->coveredStatements;
-    }
-
-    protected function round($number, $decimals=2){
-
     }
 
     /**
@@ -153,16 +155,32 @@ class Clover{
         return $round ?
             Util::round($percentage, 0) :
             Util::round($percentage, 2);
+
     }
 
+    /**
+     * Calculate coverage of elements
+     * @return float|int
+     */
     public function coverageOfElementsPercent(){
         return $this->coveragePercent(['elements']);
     }
 
+    /**
+     * Calculate coverage of statements
+     * @return float|int
+     */
     public function coverageOfStatementsPercent(){
         return $this->coveragePercent(['statements']);
     }
 
+    /**
+     * Calculate percentage for lines of comments over lines of executable code
+     *
+     * @param bool $round
+     *
+     * @return float|int
+     */
     public function commentsByLocPercent($round=FALSE){
 
         $percentage = ( $this->linesOfComments / $this->linesOfCode ) * 100;

@@ -8,16 +8,16 @@
 class CoverageCloverTest extends \PHPUnit\Framework\TestCase{
 
     /**
-     * @var null|\PHPUnit\Candies\Coverage\Clover
+     * @var null|\DevLib\Candybar\Coverage\Stats\Clover
      */
     protected static $clover = NULL;
 
     public function setUp() {
 
-        $path = ( __DIR__ . '/data/coverage-clover.xml' );
+        $path = ( __DIR__ . '/data/coverage-clover-sample.xml' );
 
         if( empty(self::$clover) )
-            self::$clover = new \PHPUnit\Candies\Coverage\Clover($path);
+            self::$clover = new \DevLib\Candybar\Coverage\Stats\Clover($path);
 
     }
 
@@ -60,4 +60,5 @@ class CoverageCloverTest extends \PHPUnit\Framework\TestCase{
         );
 
     }
+
 }

@@ -3,7 +3,12 @@
  - ~~Support for -c command to specify phpunit config file~~
  - ~~Support for -o command to specify the phpunit output file~~
  - ~~Support retrieving code coverage info~~
- - *support for generating code coverage badge*
- - support for replacing default html style
- - support for uploading output dir to s3
- - support for uploading badge to s3
+ - ~~Support for replacing default html style~~
+ - *Support for generating code coverage badge*
+ - Support for uploading output dir to s3
+ - Support for uploading badge to s3
+ - Support for generating styles `new:style`
+ - Support for loading style from url with `--style`
+ - Support for generating themes `new:theme`
+ - Suport for uploading styles/themes to s3
+ - Support for extending with IoC & interfaces

@@ -5,17 +5,83 @@
  * @version 1.0
  */
 
-namespace PHPUnit\Candies;
+namespace DevLib\Candybar;
 
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
 
 class Util{
 
+    /**
+     * Logging config
+     * @var null|array
+     */
     protected static $loggingCfg = NULL;
 
+    /**
+     * Clover metrics
+     * @var null|array
+     */
     protected static $cloverMetrics = NULL;
 
+    /**
+     * Looks up file in paths. This function is not recursive
+     *
+     * @param string $name
+     * @param string $ext
+     * @param array $paths
+     * @param bool $cwd
+     *
+     * @return bool|string
+     */
+    public static function lookupFile($name, $ext='', $paths=[DIRECTORY_SEPARATOR], $cwd=TRUE){
+
+        $name = ltrim($name, DIRECTORY_SEPARATOR);
+        $paths= is_array($paths) ? $paths : [$paths];
+
+        if( ! is_string($paths[0]) )
+            throw new \InvalidArgumentException("Paths parameter should be a list of strings... .");
+
+        if( $ext ){
+
+            $ext = ".{$ext}";
+
+            //Check if the file has .ext
+
+            if( $ext == mb_substr( mb_strtolower($name), -( mb_strlen($ext) ) ) );
+            else
+                //Add extension
+                $name.= $ext;
+
+        }
+
+        if( $cwd and is_file($name) )
+            //File is in CWD
+            return realpath($name);
+
+        //Lookup in paths
+        foreach ($paths as $path )
+            if(
+                is_dir($path)
+                    and
+                ( $file = ( $path . DIRECTORY_SEPARATOR . $name ) )
+                    and
+                is_file($file)
+            )
+                return realpath($file);
+
+        return FALSE;
+
+    }
+
+    /**
+     * Parses xml element(s) by query
+     *
+     * @param string $path: xml file path
+     * @param array $query: query to lookup elements
+     *
+     * @return array
+     */
     public static function parseXml($path, $query){
 
         if( ! file_exists( $path ) )
@@ -29,7 +95,7 @@ class Util{
     /**
      * Rounds a number down
      *
-     * @param $number
+     * @param integer|float $number
      * @param int $decimals
      * @param int $mode
      *
@@ -54,9 +120,13 @@ class Util{
         if( empty(self::$loggingCfg) ){
 
             //Initialize config
-            self::$loggingCfg = self::parseXml($path, [
+            $cfg = self::parseXml($path, [
                 'logging' => [ 'uses' => 'logging.log[::type>type,::target>target]' ]
             ]);
+
+            self::$loggingCfg = ( $cfg and isset($cfg['logging']) ) ?
+                $cfg['logging'] :
+                [];
 
         }
 
@@ -103,9 +173,13 @@ class Util{
             ]);
 
             //Initialize config
-            self::$cloverMetrics = self::parseXml($path, [
+            $metrics = self::parseXml($path, [
                 'metrics' => [ 'uses' => "project.metrics[::{$metrics}]" ]
             ]);
+
+            self::$cloverMetrics = ( $metrics and isset($metrics['metrics'][0]) ) ?
+                $metrics['metrics'][0] :
+                [];
 
         }
 
@@ -114,19 +188,16 @@ class Util{
             return self::$cloverMetrics;
 
         //Filter array for metric
-        $element = array_first(
-            self::$loggingCfg,
+        return array_first(
+            self::$cloverMetrics,
             function ($value, $key) use($metric){
 
-                return
-                    is_array($value) and
-                    isset($value[$metric]);
+                return $metric == $key;
 
             },
             NULL
         );
 
-        return ( $element and isset($element[$metric]) ) ? $element[$metric] : NULL;
-
     }
+
 }

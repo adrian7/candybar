@@ -8,14 +8,14 @@
 class CliTest extends \PHPUnit\Framework\TestCase{
 
     /**
-     * @var null|\PHPUnit\Candies\Cli
+     * @var null|\DevLib\Candybar\Cli
      */
     protected static $runner = NULL;
 
     public function setUp() {
 
         if( empty(self::$runner) )
-            self::$runner = new \PHPUnit\Candies\Cli();
+            self::$runner = new \DevLib\Candybar\Cli();
 
     }
 

@@ -5,36 +5,41 @@
  * @version 1.0
  */
 
-namespace PHPUnit\Candies\Coverage;
+namespace DevLib\Candybar\Coverage;
 
-use PHPUnit\Candies\Util;
+use DevLib\Candybar\Util;
+use DevLib\Candybar\Coverage\Stats\Clover;
+use DevLib\Candybar\Coverage\Presentation\Html;
+use DevLib\Candybar\Coverage\Stats\StatisticsInterface;
+use DevLib\Candybar\Coverage\Presentation\PresentationInterface;
 
 class Coverage{
 
-    /**
-     * @var null|Clover
-     */
-    protected $clover = NULL;
+    const TYPE_CLOVER = 'coverage-clover';
 
-    protected $html = [];
+    const TYPE_HTML   = 'coverage-html';
 
     /**
-     * Stats extracted from coverage file
-     * @var array
+     * @var null|StatisticsInterface
      */
-    protected $stats = [];
+    protected $stats = NULL;
+
+    /**
+     * @var null|PresentationInterface
+     */
+    protected $presentation = NULL;
 
     /**
      * Lower threshold for code coverage
      * @var int
      */
-    protected $lowerThreshold = 60;
+    protected $lowThreshold = 60;
 
     /**
      * Upper threshold for code coverage
      * @var int
      */
-    protected $upperThreshold = 90;
+    protected $highThreshold = 90;
 
     /**
      * Colors for badges
@@ -53,53 +58,103 @@ class Coverage{
 
         if( is_file($path) ){
 
-            if( $cloverXml = Util::getLoggingConfig($path, 'coverage-clover') )
-                //Init clover metrics
-                $this->clover  = new Clover($cloverXml);
+            //Init from phpunit config file
 
-            //Init html config
-            $htmlCfg = Util::getLoggingConfig($path, 'coverage-html');
+            if(
+                $cloverConfig = Util::getLoggingConfig($path, 'coverage-clover')
+                    and
+                $filename = $cloverConfig['target']
+            )
+                //Init stats
+                $this->buildStats( $filename, $cloverConfig['type'] );
+            else
+                //TODO add support for coverage drivers with factory
+                throw new \InvalidArgumentException("Missing logging type `coverage-clover` in your phpunit config... .");
 
-            if( isset($htmlCfg['lowUpperBound']) )
-                $this->lowerThreshold = intval($htmlCfg['lowUpperBound']);
+            //Init html presentation
+            if( $htmlConfig = Util::getLoggingConfig($path, 'coverage-html') ){
 
-            if( isset($htmlCfg['highLowerBound']) )
-                $this->upperThreshold = intval($htmlCfg['highLowerBound']);
+                if( isset($htmlConfig['lowUpperBound']) )
+                    $this->lowThreshold = intval($htmlConfig['lowUpperBound']);
 
-            //TODO init html dir too
-            //if( $cloverXml = Util::getLoggingConfig($path, 'coverage-clover') )
-            //    $this->coverageHtml = Util::getLoggingConfig($path, 'coverage-html');
+                if( isset($htmlConfig['highLowerBound']) )
+                    $this->highThreshold = intval($htmlConfig['highLowerBound']);
+
+                $this->buildPresentation($htmlConfig['target'], $htmlConfig['type']);
+            }
+            else
+                //TODO add support for coverage drivers with factory
+                throw new \InvalidArgumentException("Missing logging type `coverage-html` in your phpunit config... .");
 
         }
 
         if( is_dir($path) ){
 
-            $this->clover = new Clover(
-                [
-                    'target' => rtrim($path, DIRECTORY_SEPARATOR) .
-                             DIRECTORY_SEPARATOR .
-                             'clover.xml'
-                ]
-            );
+            $path = rtrim($path, DIRECTORY_SEPARATOR);
+
+            if( $file = ( $path . DIRECTORY_SEPARATOR . 'coverage.xml' )  and is_file($file) )
+                $this->buildStats($file, self::TYPE_CLOVER);
+            else
+                throw new \InvalidArgumentException(
+                    "Missing file coverage.xml in your phpunit output folder at $path ... ."
+                );
+
+            if( $file = ( $path . DIRECTORY_SEPARATOR . 'index.html' )  and is_file($file) )
+                $this->buildPresentation($file, self::TYPE_HTML);
+            else
+                throw new \InvalidArgumentException(
+                    "Missing file index.html in your phpunit output folder at $path ... ."
+                );
 
         }
 
     }
 
-    public function getStats(){
-        //TODO...
+    /**
+     * Initialize clover stats
+     *
+     * @param string $filename
+     * @param string $type
+     */
+    public function buildStats($filename, $type=self::TYPE_CLOVER){
+
+        switch ($type){
+
+            case self::TYPE_CLOVER:
+                $this->stats = new Clover($filename); break;
+
+            default:
+                throw new \InvalidArgumentException("Unsupported coverage type {$type} ... .");
+
+        }
     }
 
-    public function getPercent(){
-        //TODO...
+    /**
+     * Initialize presentation html
+     *
+     * @param string $filename
+     * @param string $type
+     */
+    public function buildPresentation($filename, $type=self::TYPE_HTML){
+
+        switch ($type){
+
+            case self::TYPE_HTML:
+                $this->presentation = new Html($filename); break;
+
+            default:
+                throw new \InvalidArgumentException("Unsupported coverage type {$type} ... .");
+
+        }
+
     }
 
     public function getLowerThreshold(){
-        return $this->lowerThreshold;
+        return $this->lowThreshold;
     }
 
     public function getUpperThreshold(){
-        return $this->upperThreshold;
+        return $this->highThreshold;
     }
 
     public function applyStyle($name){

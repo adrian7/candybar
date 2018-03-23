@@ -5,8 +5,10 @@
  * @version 1.0
  */
 
-namespace PHPUnit\Candies;
+namespace DevLib\Candybar;
 
+use DevLib\Candybar\Coverage\Coverage;
+use DevLib\Candybar\Coverage\Stats\Clover;
 use PHPUnit\Util\Getopt;
 use PHPUnit\Framework\Exception;
 
@@ -190,7 +192,12 @@ EOT;
         $this->handleArguments($argv);
 
         //Generate code coverage stats
-        $cover = new Coverage($this->arguments['configuration']);
+
+        //Init repository defaults
+        //! Repository::registered('Coverage/Statistics');
+
+        //Resolve objects from repository
+        //Repository::resolve('Coverage/Stats');
     }
 
     public function getArguments(){
