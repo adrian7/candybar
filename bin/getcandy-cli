@@ -12,4 +12,4 @@ Get Candy - retrieves and summarize PHPUnit output plus it generates badges.
 EOT;
 
 //Process commands
-\PHPUnit\Candies\Cli::main();
+\DevLib\Candybar\Cli::main();

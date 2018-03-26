@@ -9,10 +9,11 @@ return [
 
     'defaults' => [],
 
-    //Register here available commands (candies): candybar {command} {--options}
+    //Register here available commands (candies): candybar {command} {--option}
     'bar' => [
 
-        'coverage:style' => 'Stylecommand.class',
+        'coverage:style' =>
+            \DevLib\Candybar\Commands\CoverageHtmlStyleCommand::class,
 
         'coverage:theme' => 'Stylecommand.theme',
 

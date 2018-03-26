@@ -36,6 +36,9 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
     public function testLookupFile(){
 
         //Relative path
@@ -59,6 +62,37 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
         //Restore cwd
         chdir($cwd);
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFindFileOrFail(){
+
+        //Relative path
+        $name = 'phpunit-sample';
+        $dir  = join(DIRECTORY_SEPARATOR, ['tests', 'data']);
+        $ext  = 'xml';
+
+        $this->assertEquals(
+            realpath($dir . DIRECTORY_SEPARATOR . $name . ".{$ext}"),
+            \DevLib\Candybar\Util::findFileOrFail($name, [$dir], $ext)
+        );
+
+        //Test if it throws exception
+        try{
+
+            $name = 'phpunit-missing-sample';
+
+            $path =
+                \DevLib\Candybar\Util::findFileOrFail($name, [$dir], $ext);
+
+        }
+        catch (\DevLib\Candybar\Exceptions\UnreadableFileException $e){
+            //Caught exception test passed
+            $this->assertTrue(TRUE);
+        }
 
     }
 }

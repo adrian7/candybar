@@ -7,6 +7,7 @@
 
 namespace DevLib\Candybar;
 
+use DevLib\Candybar\Exceptions\UnreadableFileException;
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
 
@@ -31,10 +32,19 @@ class Util{
      * @param string $ext
      * @param array $paths
      * @param bool $cwd
+     * @param bool $fail
      *
      * @return bool|string
+     *
+     * @throws UnreadableFileException
      */
-    public static function lookupFile($name, $ext='', $paths=[DIRECTORY_SEPARATOR], $cwd=TRUE){
+    public static function lookupFile(
+        $name,
+        $ext='',
+        $paths=[DIRECTORY_SEPARATOR],
+        $cwd=TRUE,
+        $fail=FALSE
+    ){
 
         $name = ltrim($name, DIRECTORY_SEPARATOR);
         $paths= is_array($paths) ? $paths : [$paths];
@@ -59,9 +69,9 @@ class Util{
         foreach ($paths as $path )
             if(
                 is_dir($path)
-                and
+                    and
                 ( $file = ( $path . DIRECTORY_SEPARATOR . $name ) )
-                and
+                    and
                 is_file($file)
             )
                 return realpath($file);
@@ -70,7 +80,31 @@ class Util{
         if( $cwd and is_file($name) )
             return realpath($name);
 
+        if( $fail )
+            //File not found
+            throw new UnreadableFileException(
+                $name,
+                ( $cwd ? array_merge($paths, getcwd() ) : $paths )
+            );
+
+        //Return false
         return FALSE;
+
+    }
+
+    /**
+     * @param $name
+     * @param array $paths
+     * @param bool $ext
+     * @param bool $cwd
+     *
+     * @return bool|string
+     * @throws UnreadableFileException
+     */
+    public static function findFileOrFail($name, $paths=[], $ext=FALSE, $cwd=TRUE){
+
+        if( $path = self::lookupFile($name, $ext, $paths, $cwd, TRUE) )
+            return $path;
 
     }
 

@@ -21,6 +21,8 @@ class CliTest extends \PHPUnit\Framework\TestCase{
 
     public function testShortOptions(){
 
+        //TODO needs rewrite
+
         $args = [
             'bin/executable', //Script name
 

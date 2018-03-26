@@ -7,91 +7,83 @@
 
 namespace DevLib\Candybar;
 
-use PHPUnit\Util\Getopt;
-use PHPUnit\Framework\Exception;
+use DevLib\Candybar\Commands\Command;
+use DevLib\Candybar\Commands\CommandInterface;
+use DevLib\Candybar\Exceptions\UnknownCommandException;
+use DevLib\Candybar\Exceptions\UnreadableFileException;
+use DevLib\Candybar\Exceptions\InvalidConfigurationException;
 
-class Cli {
+class Cli extends Command {
 
-    /**
-     * Normal exit - 0
-     */
-    const SUCCESS_EXIT = 0;
+    const VERSION = '0.1';
 
-    /**
-     * Abnormal exit - 2
-     */
-    const ABNORMAL_EXIT = 2;
+    const CODENAME= 'Butterfinger';
 
     /**
-     * Default phpunit config
-     */
-    const PHPUNIT_DEFAULT_CFG = 'phpunit.xml';
-
-    /**
-     * List of cli options
-     * @var array
-     */
-    protected $options;
-
-    /**
-     * List of arguments
-     * @var array
-     */
-    protected $arguments = [
-        'badges'        => 'coverage',
-        'configuration' => self::PHPUNIT_DEFAULT_CFG,
-        'output'        => NULL,
-        's3_key'        => NULL,
-        's3_secret'     => NULL,
-        'style'         => 'default',
-        //TODO add phpstan options
-        //TODO add rules for pushing code to prod
-    ];
-
-    /**
-     * Long options
-     * @var array
-     */
-    protected $longOptions = [
-        'badges='          => NULL,
-        'configuration='   => NULL,
-        'help'             => NULL,
-        'output='          => NULL,
-        's3-key='          => NULL,
-        's3-secret='       => NULL,
-        'style='           => NULL
-    ];
-
-    /**
-     * @param bool $exit
+     * Configured commands
      *
-     * @return mixed
+     * @var array
      */
-    public static function main($exit = TRUE) {
+    protected $commands = [];
 
-        $command = new static;
+    /**
+     * Flag - version printed
+     * @var bool
+     */
+    protected $versionPrinted = FALSE;
 
-        return $command->run($_SERVER['argv'], $exit);
+    /**
+     * Loads configuration
+     *
+     * @throws InvalidConfigurationException
+     * @throws UnreadableFileException
+     */
+    public function config(){
+
+        $config   = NULL;
+        $filename = Util::findFileOrFail('config.php',  [
+            'candybar',
+            ( __DIR__ . '/../candybar' )
+        ]);
+
+        if( $filename )
+            //Load configuration
+            $config = require $filename;
+
+        if( ! is_array($config) or ! isset($config['bar']) )
+            throw new InvalidConfigurationException($filename);
+
+        //Configure commands
+        $this->commands = data_get($config, 'bar');
 
     }
 
     /**
-     * Displays help
+     * Prints CLI usage
+     * @param null|string $command
      */
-    protected function showHelp() {
+    protected function showUsage($command=NULL) {
 
         $argv     = $_SERVER['argv'];
         $filename = basename( array_shift($argv) );
 
+        $this->showVersion(TRUE);
+
+        if( $command )
+            //Execute requested command's help
+            return $this->execute($command, ['--help']);
+
+        //Print CLI usage instructions
+
         print <<<EOT
         
-Usage: {$filename} [options]
+Usage: {$filename} [command] {options}
 
-Options: 
+Commands: 
 
- -c <file>      path to PHPunit's config file; E.g. -c phpunit-config.xml 
- -o <dir>       path to PHPUnit's output folder; E.g. -o tests/output
- -s <style>     name of css style to apply to code coverage html report
+ help       prints this message  
+ version    prints version information
+ list       lists all available commands
 
 
 EOT;
@@ -99,122 +91,160 @@ EOT;
     }
 
     /**
-     * Extracts CLI arguments
-     * @param array $argv
+     * Prints available commands
      */
-    public function handleArguments( array $argv ) {
+    protected function showList(){
+        //TODO...
+    }
 
-        try {
+    /**
+     * Prints version information
+     * @param bool $short
+     */
+    protected function showVersion($short=FALSE){
 
-            $this->options = Getopt::getopt(
-                $argv,
-                's:c:b:o:h',
-                \array_keys($this->longOptions)
-            );
+        if( $this->versionPrinted  )
+            return;
 
-        } catch (Exception $t) {
-            $this->exitWithErrorMessage( $t->getMessage() );
-        }
+        $version  = self::VERSION;
+        $codename = self::CODENAME;
 
-        foreach ($this->options[0] as $option) {
-            switch ($option[0]) {
+        if( $short )
 
-                //Set style to apply
-                case 's':
-                case '--style':
-                    $this->arguments['style'] = $option[1] ?
-                        strtolower( trim($option[1]) ) :
-                        'default';
+            print <<<EOT
+            
+ 🍬 Candybar v{$version} ({$codename})
+ 
+EOT;
 
-                    break;
+        else
 
-                //Set badges to generate
-                case 'b':
-                case '--badges':
-                    $this->arguments['badges'] = $option[1] ?
-                        @explode(',', trim($option[1])) :
-                        ['coverage'];
+            print <<<EOT
 
-                    break;
+ 🍬 Candybar v{$version} ({$codename})
+ 
+ Project page:  https://github.com/adrian7/candybar
+ Documentation: https://github.com/adrian7/candybar/wiki
+ 
 
-                //Set S3 key
-                case '--s3-key':
-                    $this->arguments['s3_key'] = trim($option[1]);
+EOT;
 
-                    break;
 
-                //Set S3 secret access key
-                case '--s3-secret':
-                    $this->arguments['s3_secret'] = trim($option[1]);
-
-                    break;
-
-                //Set configuration file
-                case 'c':
-                case '--configuration':
-                    $this->arguments['configuration'] = trim($option[1]) ?:
-                        self::PHPUNIT_DEFAULT_CFG;
-
-                    break;
-
-                //Set PHPUnit's output folder
-                case 'o':
-                case '--output':
-                    $this->arguments['output'] = trim($option[1]);
-
-                    break;
-
-                //Display help
-                case 'h':
-                case '--help':
-                    $this->showHelp();
-                    exit(self::SUCCESS_EXIT);
-
-                    break;
-
-            }
-
-        }
+        $this->versionPrinted = TRUE;
 
     }
 
     /**
-     * Command run
+     * Main - entry point
+     *
+     * @param bool $exit
+     *
+     * @return mixed
+     * @throws InvalidConfigurationException
+     * @throws UnknownCommandException
+     * @throws UnreadableFileException
+     * @throws \ReflectionException
+     */
+    public static function main($exit = TRUE) {
+
+        $command = new static(FALSE);
+
+        //configure
+        $command->config();
+
+        return $command->run($_SERVER['argv'], $exit);
+
+    }
+
+    /**
+     * Run
+     *
      * @param array $argv
      * @param bool $exit
      *
      * @return int|void
+     * @throws UnknownCommandException
+     * @throws \ReflectionException
      */
-    public function run(array $argv, $exit=TRUE){
+    public function run(array $argv, $exit=FALSE){
 
-        $this->handleArguments($argv);
+        if( count($argv) and isset($argv[1]) and $command = trim($argv[1]) ){
 
-        //Generate code coverage stats
+            //Init command
+            array_shift($argv);
 
-        //Init repository defaults
-        //! Repository::registered('Coverage/Statistics');
+            switch ($command){
 
-        //Resolve objects from repository
-        //Repository::resolve('Coverage/Stats');
+                case 'list':
+                    return $this->showList();
+
+                case 'version':
+                    return $this->showVersion();
+
+                case 'help':
+                    return $this->showUsage();
+
+                default:
+                    //Execute command
+                    $this->execute($command, $argv);
+            }
+
+        }
+        else
+            $this->showUsage();
 
     }
 
-    public function getArguments(){
-        return $this->arguments;
-    }
+    /**
+     * Executes a given command
+     *
+     * @param string $cmd
+     * @param array $argv
+     */
+    public function execute($cmd, $argv){
 
-    private function exitWithErrorMessage($message) {
+        if( in_array($cmd, array_keys($this->commands) ) ){
 
-        //$this->printVersionString();
+            $handler = $this->commands[$cmd];
 
-        print $message . PHP_EOL;
+            if( class_exists( $this->commands[$cmd] ) )
+                $handler = new $handler;
+            else
+                $this->exitWithError(
+                    new \ReflectionException(
+                        "Cannot find class {$handler} for command {$cmd} ... ."
+                    )
+                );
 
-        exit(self::ABNORMAL_EXIT);
+            //Run command with arguments
+            if( is_a($handler, CommandInterface::class) )
 
-    }
+                //Do-ya-thing
+                ( '--help' == $argv[0] ) ?
+                    $handler->showHelp( $argv ) :
+                    $handler->run( $argv );
 
-    public function getCodeCoverageInfo(){
-        //TODO...
+            else {
+
+                //No face no name no number
+
+                $classname = get_class($handler);
+                $required  = CommandInterface::class;
+
+                $this->exitWithError(
+                    new \ReflectionException(
+                        "Invalid handler provided `{$classname}`.
+                        Command handlers should implement `$required` ."
+                    )
+                );
+
+            }
+
+        }
+        else
+            //Unrecognized command
+            $this->exitWithError( new UnknownCommandException($cmd) );
+
     }
 
 }
