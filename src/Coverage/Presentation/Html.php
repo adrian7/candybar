@@ -13,9 +13,16 @@ use DevLib\Candybar\Exceptions\UnsupportedFeatureException;
 class Html implements PresentationInterface {
 
     /**
-     * Default styles dir
+     * Styles folder
+     * @var array
      */
-    const STYLES_DIR = 'styles';
+    protected $stylesDirs = ['candybar/styles'];
+
+    /**
+     * Themes folder
+     * @var array
+     */
+    protected $themesDirs = ['candybar/themes'];
 
     /**
      * PHPUnit's default style file
@@ -82,6 +89,42 @@ class Html implements PresentationInterface {
                 )
             );
 
+        //Add styles folders
+        $this->addStylesFolder(getcwd() . '/candybar/styles');
+        $this->addStylesFolder(__DIR__ . '/../../../candybar/styles' );
+
+        //Add themes folders
+        $this->addThemesFolder(getcwd() . '/candybar/themes');
+        $this->addThemesFolder(__DIR__ . '/../../../candybar/themes' );
+
+    }
+
+    public function addStylesFolder($dir){
+
+        if( $folder = realpath($dir) ){
+
+            if( ! in_array($folder, $this->stylesDirs) )
+                $this->stylesDirs[] = rtrim($folder, DIRECTORY_SEPARATOR);
+
+            return TRUE;
+
+        }
+
+        return FALSE;
+    }
+
+    public function addThemesFolder($dir){
+
+        if( $folder = realpath($dir) ){
+
+            if( ! in_array($folder, $this->themesDirs) )
+                $this->themesDirs[] = rtrim($folder, DIRECTORY_SEPARATOR);
+
+            return TRUE;
+
+        }
+
+        return FALSE;
     }
 
     /**
@@ -138,7 +181,13 @@ class Html implements PresentationInterface {
      */
     public function setStyle($name){
 
-        if( $name = Util::lookupFile($name, 'css', self::STYLES_DIR) )
+        if(
+            $name = Util::lookupFile(
+                $name,
+                'css',
+                $this->stylesDirs
+            )
+        )
             //Style found, replace default styling
             return
                 copy($name, $this->getCssPath( self::MAIN_CSS_FILE ) );
@@ -182,6 +231,10 @@ class Html implements PresentationInterface {
      */
     public function createTheme($source='default'){
         throw new UnsupportedFeatureException("Feature not supported... .");
+    }
+
+    public function setupDefaultTheme(){
+        //TODO...
     }
 
 }

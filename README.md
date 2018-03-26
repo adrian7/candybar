@@ -1,15 +1,18 @@
 # Candybar
 
-*Tools to make PHPUnit's tests results easier to follow and integrate with your 
-private repos and CI environments.*
+*Get the candies from your PHPUnit's tests results*
 
-### Included tools: 
+**(!) Warning: this project is under heavy development. 
+Expect breaking changes with every new 0.x release.**
 
- - phpunit.xml configuration sample
- - Code coverage stylesheets
- - Code coverage badge generator
- - PHPUnit output uploader to S3
- - bash script
+**Check [the roadmap](https://github.com/adrian7/candybar/blob/master/ROADMAP.md) 
+for upcoming features. Issues/pull requests are welcomed.**
+
+### Candies: 
+
+ - apply custom style to html coverage presentation
+ - generate code coverage percent badge 
+ - upload html and badge(s) to s3 bucket
 
 ### Installation
 

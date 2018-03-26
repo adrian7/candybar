@@ -11,10 +11,10 @@ $ candybar new:style 'mycustomstyle'
 
 ### Distributing
 
-You can distribute your styles as css or zip files, and use the `--style` 
+You can distribute your styles as css files, and use the `--style` 
 option to select a style when running candybar: 
 ```bash
-$ candybar --style <style-file-or-url.css|.zip>
+$ candybar --style <style-file-or-url.css>
 ```
 
 #### Hosting/distributing your styles

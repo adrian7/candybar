@@ -55,20 +55,20 @@ class Util{
 
         }
 
-        if( $cwd and is_file($name) )
-            //File is in CWD
-            return realpath($name);
-
         //Lookup in paths
         foreach ($paths as $path )
             if(
                 is_dir($path)
-                    and
+                and
                 ( $file = ( $path . DIRECTORY_SEPARATOR . $name ) )
-                    and
+                and
                 is_file($file)
             )
                 return realpath($file);
+
+        //Lookup in CWD
+        if( $cwd and is_file($name) )
+            return realpath($name);
 
         return FALSE;
 

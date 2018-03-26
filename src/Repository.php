@@ -69,4 +69,5 @@ class Repository{
     public static function registered($name) {
         return array_key_exists($name, static::$registry);
     }
+
 }

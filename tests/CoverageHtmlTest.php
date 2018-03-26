@@ -41,7 +41,7 @@ class CoverageHtmlTest extends \PHPUnit\Framework\TestCase{
 
         $path = ( __DIR__ . '/data/html/.js/script.js' );
 
-        $this->assertEquals($path, self::$html->getCssPath( basename($path) ) );
+        $this->assertEquals($path, self::$html->getJsPath( basename($path) ) );
 
     }
 
@@ -49,9 +49,27 @@ class CoverageHtmlTest extends \PHPUnit\Framework\TestCase{
 
         //Style under styles/default.css
         $style = 'default';
-        $target= ( __DIR__ . '/data/html/.css/style.css' );
 
+        $origin = ( __DIR__ . '/../candybar/styles/default.css' );
+        $backup = ( __DIR__ . '/data/html/.css/style.css.bk' );
+        $target = ( __DIR__ . '/data/html/.css/style.css' );
+
+        //Backup original file
+        copy($target, $backup);
+
+        //Set style
         self::$html->setStyle($style);
 
+        //Did the style was copied?
+        $this->assertEquals(
+            file_get_contents($origin),
+            file_get_contents($target)
+        );
+
+        //Restore style
+        copy($backup, $target);
+        unlink($backup);
+
     }
+
 }

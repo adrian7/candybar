@@ -7,8 +7,6 @@
 
 namespace DevLib\Candybar;
 
-use DevLib\Candybar\Coverage\Coverage;
-use DevLib\Candybar\Coverage\Stats\Clover;
 use PHPUnit\Util\Getopt;
 use PHPUnit\Framework\Exception;
 
@@ -198,6 +196,7 @@ EOT;
 
         //Resolve objects from repository
         //Repository::resolve('Coverage/Stats');
+
     }
 
     public function getArguments(){
