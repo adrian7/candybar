@@ -44,48 +44,13 @@ abstract class Command implements CommandInterface {
      * Provided list of parameters
      * @var array
      */
-    protected $arguments = [
-
-        //TODO move this to subclass
-
-        //An argument with default value and description
-        'one' => [
-            'default'     => 'value',
-            'description' => 'Just a placeholder argument'
-        ],
-
-        //An argument without description
-        'two' => 'defaultValue'
-
-    ];
+    protected $arguments = [];
 
     /**
      * Available options (long options only)
      * @var
      */
-    protected $options = [
-
-        //TODO move that within subclass
-
-        //Option with default value and description
-        'key' => [
-            'default'     => NULL,
-            'description' => 'The option description'
-        ],
-
-        //Option without a description
-        'secret' => NULL,
-
-        //Boolean option (switch)
-        'erase' => FALSE
-
-    ];
-
-    /**
-     * Indicates if the version string was printed
-     * @var bool
-     */
-    private $versionStringPrinted = FALSE;
+    protected $options = [];
 
     /**
      * Command constructor.
@@ -104,11 +69,20 @@ abstract class Command implements CommandInterface {
      */
     private function setup(){
 
-        //Setup long options
+        //Setup long options for Getopt
 
         if( count($this->options) )
-            foreach ($this->options as $name=>$spec)
-                $this->longOpts["--{$name}="] = NULL;
+            foreach ($this->options as $name=>$spec){
+
+                if( is_bool( $this->option($name) ) );
+                    //Is boolean option
+                else
+                    //Requires an argument
+                    $name.='=';
+
+                $this->longOpts["{$name}"] = NULL;
+
+            }
 
     }
 
@@ -121,7 +95,7 @@ abstract class Command implements CommandInterface {
      */
     private function setInput($name, $value, &$input=[]){
 
-        if( isset($input[$name]) )
+        if( array_key_exists($name, $input) )
             $input[$name] = is_array($input[$name]) ?
                 [
                     'value'         => $value,
@@ -144,23 +118,24 @@ abstract class Command implements CommandInterface {
     private function getInput($name, $input, $errorMsg=NULL){
 
         $errorMsg = empty($errorMsg) ?
-            "Missing spec. for input key {$name}... ." :
+            "Missing spec. for input key <{$name}> ... ." :
             $errorMsg;
 
-        if( isset($input[$name]) ){
+        if( array_key_exists($name, $input) ){
 
             //Input key available
 
             $value = is_array($input[$name]) ?
                 data_get(
-                    'value',
                     $input[$name],
+                    'value',
                     data_get($input[$name], 'default')
                 ):
                 $input[$name];
 
             //Return
             return $value;
+
         }
 
         throw new \InvalidArgumentException($errorMsg);
@@ -168,69 +143,175 @@ abstract class Command implements CommandInterface {
     }
 
     /**
-     * Displays help
+     * Displays command help
      */
     public function showHelp() {
 
-        //TODO generate help
+        $argv    = $_SERVER['argv'];
 
-        $argv     = $_SERVER['argv'];
-        $filename = basename( array_shift($argv) );
+        $script  = basename( array_shift($argv) );
 
-        print <<<EOT
-        
-Command help instructions go here... .
+        if( $command = array_shift($argv) and 'help' == $command )
+            //Querying help about a command
+            $command = array_shift($argv);
 
+        $hasArguments = count($this->arguments) ? '{arguments}' : '';
+        $hasOptions   = count($this->options)   ? '{--options}' : '';
 
-EOT;
+        $this->line(" {$command}");
+        $this->eol("   " . $this->description);
+        $this->line(" Usage:   {$script} {$command} {$hasArguments} {$hasOptions}");
+
+        if( count($this->arguments) ){
+
+            //Display list of command arguments
+
+            $this->line(" Arguments: " . PHP_EOL);
+
+            foreach ($this->arguments as $arg=>$cfg)
+                $this->eol(
+                    "  <{$arg}>    " .
+                    ( is_array($cfg) ? data_get($cfg, 'description') : '' )
+                );
+
+        }
+
+        if( count($this->options) ){
+
+            //Display list of command options
+            $this->line(" Options: " . PHP_EOL);
+
+            foreach ($this->options as $opt=>$cfg)
+                $this->eol(
+                    "  --{$opt}" .
+                    ( is_bool($this->option($opt) ) ? '' : "=<value>" ) .
+                    ( is_array($cfg) ? data_get($cfg, 'description') : '' )
+                );
+
+        }
+
+        $this->eol();
 
     }
 
     /**
      * Extracts CLI arguments
      * @param array $argv
+     *
+     * @throws \Exception
      */
     public function parseInput( array $argv ) {
 
-        $options   = array_keys($this->options);
-        $arguments = array_keys($this->arguments);
+        $longOptions = \array_keys($this->longOpts);
 
         //Handle options
-        try {
+        list($options, $arguments) = Getopt::getopt(
+            $argv,
+            '',
+            $longOptions
+        );
 
-            $this->opts = Getopt::getopt(
-                $argv,
-                '',
-                \array_keys($this->longOpts)
-            );
+        $this->parseOptions($options, $longOptions);
 
-        } catch (Exception $t) {
-            $this->exitWithErrorMessage( $t->getMessage() );
+        $this->parseArguments($arguments);
+
+    }
+
+    /**
+     * Parse command option
+     *
+     * @param array $options
+     * @param array $longOptions
+     */
+    public function parseOptions($options=[], $longOptions=[]){
+
+        $commandOptions = array_keys($this->options);
+
+        //Parse options
+        if( count($options) )
+
+            foreach ($options as $option) {
+
+                list($name, $value) = $option;
+
+                //Extract option name
+                $name = trim($name, '-');
+
+                //Check for chained empty options
+                $cleanValue              = trim(trim($value), '-');
+                $valueOverriddenByOption = (
+                    strpos($value, '--') !== FALSE
+                    and (
+                        in_array($cleanValue, $longOptions)
+                        or
+                        in_array( "{$cleanValue}=", $longOptions)
+                    )
+                );
+
+                if( $valueOverriddenByOption)
+                    throw new \InvalidArgumentException(
+                        sprintf("Option %s requires a value... .", "--{$name}")
+                    );
+
+                if( in_array($name, $commandOptions) ){
+
+                    if(
+                        empty($value)
+                        and
+                        array_key_exists("{$name}=", $this->longOpts)
+                    )
+                        //The option requires a value
+                        throw new \InvalidArgumentException(
+                            sprintf("Option %s requires a value... .", "--{$name}")
+                        );
+
+                    else
+                        //Set option
+                        $this->setOption($name, empty($value) ? TRUE : $value );
+
+                }
+                else
+                    //Unrecognized option
+                    throw new \InvalidArgumentException(
+                        sprintf("Unrecognized option %s ... .", "--{$name}")
+                    );
+
+                if( 'help' == $name )
+                    $this->showHelp();
+
+            }
+
+    }
+
+    /**
+     * Parse command arguments
+     * @param $arguments
+     */
+    public function parseArguments($arguments){
+
+        $commandArguments = array_keys($this->arguments);
+
+        //Parse arguments
+        if( count($arguments) ){
+
+            if( count($commandArguments) < count($arguments) )
+                //Invalid number of arguments
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        "Command supports only %s arguments, %s given ... .",
+                        count($commandArguments),
+                        count($arguments)
+                    )
+                );
+
+            foreach ($arguments as $value)
+                $this->setArgument(
+                    array_shift($commandArguments),
+                    $value
+                );
+
         }
 
-        if( count($this->opts[0]) )
-            foreach ($this->opts[0] as $option) {
-
-            //0 -> is the option string --option
-            //1 -> is the value
-
-            $name = trim($option[0], '-');
-
-            if( in_array($name, $options) )
-                $this->setOption($name, $option[1]);
-
-            if( 'help' == $name )
-                $this->showHelp( TRUE );
-
-        }
-
-        dd( $this->options );
-
-        //Handle arguments
-        if( 1 < count($argv) ){
-            //TODO...
-            dd($argv);
-        }
     }
 
     /**
@@ -278,7 +359,9 @@ EOT;
     }
 
     protected function setOption($name, $value){
-       $this->setInput($name, $value, $this->options);
+
+        $this->setInput($name, $value, $this->options);
+
     }
 
     /**
@@ -292,19 +375,61 @@ EOT;
         if( ! is_string($name) )
             throw new \InvalidArgumentException("Option name should be a string... .");
 
-
         return $this->getInput($name, $this->options);
 
     }
 
-    protected function exitWithError(\Exception $e) {
+    public function warn($message){
+        $this->line("(w) {$message}");
+    }
+
+    public function info($message){
+        $this->line("(i) {$message}");
+    }
+
+    public function success($message){
+        $this->line("(i) {$message}");
+    }
+
+    /**
+     * Prints a line
+     *
+     * @param string $message
+     * @param string $style
+     */
+    public function line($message='', $style='default'){
+        print (PHP_EOL . strval($message) . PHP_EOL);
+        //TODO add support for style
+    }
+
+    /**
+     * Prints message followed by End-of-line
+     *
+     * @param string $message
+     * @param string $style
+     */
+    public function eol($message='', $style='default'){
+        print ($message . PHP_EOL);
+        //TODO add support for style
+    }
+
+    /**
+     * @param \Exception $e
+     *
+     * @throws \Exception
+     */
+    public function exitWithError(\Exception $e) {
 
         if( method_exists($this, 'showVersion') )
             //Show version if available
             $this->showVersion(TRUE);
 
         //TODO support for PSR3
-        print ( PHP_EOL . "Error: " . $e->getMessage() . PHP_EOL . PHP_EOL );
+        print ( PHP_EOL . " Error: " . $e->getMessage() . PHP_EOL . PHP_EOL );
+        print (" Stack trace: " . PHP_EOL);
+
+        //Throw error
+        throw $e;
 
         exit(self::ABNORMAL_EXIT);
 

@@ -7,9 +7,5 @@
 
 require ( __DIR__ . '/../vendor/autoload.php' );
 
-$description = <<<EOT
-Get Candy - retrieves and summarize PHPUnit output plus it generates badges.
-EOT;
-
 //Process commands
 \DevLib\Candybar\Cli::main();

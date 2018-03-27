@@ -12,68 +12,62 @@ class CliTest extends \PHPUnit\Framework\TestCase{
      */
     protected static $runner = NULL;
 
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     * @throws \DevLib\Candybar\Exceptions\InvalidConfigurationException
+     */
     public function setUp() {
 
         if( empty(self::$runner) )
             self::$runner = new \DevLib\Candybar\Cli();
 
+        self::$runner->config();
+
     }
 
-    public function testShortOptions(){
-
-        //TODO needs rewrite
+    public function cliCommandTest($command, $expectKeywords=[]){
 
         $args = [
             'bin/executable', //Script name
 
             //Args
-            '-c configuration.xml',
-            '-o output/folder',
-            '-s mystyle',
-            '-b coverage,phpstan',
+            trim($command)
 
         ];
 
+        //Turn on output buffering
+        ob_start();
+
         //Handle arguments
-        self::$runner->handleArguments($args);
+        self::$runner->run($args);
 
-        $received = self::$runner->getArguments();
+        //Retrieve output
+        $result = ob_get_contents();
 
-        //Assert configuration
-        $this->assertEquals('configuration.xml', $received['configuration']);
-        $this->assertEquals('mystyle', $received['style']);
-        $this->assertEquals(['coverage', 'phpstan'], $received['badges']);
-        $this->assertEquals('output/folder', $received['output']);
+        //Turn of output buffering (assume it was turned off)
+        ob_end_clean();
+
+        //Do we get some keywords?
+        foreach ($expectKeywords as $keyword)
+            $this->assertContains($keyword, $result);
 
     }
 
-    public function testLongOptions(){
 
-        $args = [
-            'bin/executable', //Script name
+    public function testHelpCommand(){
 
-            //Args
-            '--configuration=configuration-long.xml',
-            '--output=phpunit/output/folder',
-            '--style=customstyle',
-            '--badges=coverage,someotherbadge',
-            '--s3-key=AWSTESTKEY',
-            '--s3-secret=AWSTESTSECRET',
+        $this->cliCommandTest('help', ['help', 'Usage', \DevLib\Candybar\Cli::VERSION]);
 
-        ];
+    }
 
-        //Handle arguments
-        self::$runner->handleArguments($args);
+    public function testListCommand(){
 
-        $received = self::$runner->getArguments();
-
-        //Assert configuration
-        $this->assertEquals('configuration-long.xml', $received['configuration']);
-        $this->assertEquals('customstyle', $received['style']);
-        $this->assertEquals(['coverage', 'someotherbadge'], $received['badges']);
-        $this->assertEquals('phpunit/output/folder', $received['output']);
-        $this->assertEquals('AWSTESTKEY', $received['s3_key']);
-        $this->assertEquals('AWSTESTSECRET', $received['s3_secret']);
+        //Test list command with default commands
+        $this->cliCommandTest('list', [
+            'coverage:style',
+            'badge:coverage',
+            'example:command'
+        ]);
 
     }
 

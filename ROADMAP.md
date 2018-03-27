@@ -12,3 +12,5 @@
  - Support for generating themes `new:theme`
  - Suport for uploading styles/themes to s3
  - Support for extending with IoC & interfaces
+ - Integration with [collision](https://github.com/nunomaduro/collision)
+ - Support for chaining commands

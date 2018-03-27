@@ -84,7 +84,7 @@ class Util{
             //File not found
             throw new UnreadableFileException(
                 $name,
-                ( $cwd ? array_merge($paths, getcwd() ) : $paths )
+                ( $cwd ? array_merge($paths, [getcwd()] ) : $paths )
             );
 
         //Return false

@@ -15,8 +15,14 @@ use DevLib\Candybar\Exceptions\InvalidConfigurationException;
 
 class Cli extends Command {
 
-    const VERSION = '0.1';
+    /**
+     * Version
+     */
+    const VERSION = '0.1-dev';
 
+    /**
+     * Codename
+     */
     const CODENAME= 'Butterfinger';
 
     /**
@@ -35,13 +41,15 @@ class Cli extends Command {
     /**
      * Loads configuration
      *
+     * @param string $filename
+     *
      * @throws InvalidConfigurationException
      * @throws UnreadableFileException
      */
-    public function config(){
+    public function config($filename=NULL){
 
         $config   = NULL;
-        $filename = Util::findFileOrFail('config.php',  [
+        $filename = $filename ?: Util::findFileOrFail('config.php',  [
             'candybar',
             ( __DIR__ . '/../candybar' )
         ]);
@@ -75,18 +83,19 @@ class Cli extends Command {
 
         //Print CLI usage instructions
 
-        print <<<EOT
-        
-Usage: {$filename} [command] {options}
+        $this->line(" Usage: {$filename} [command] {options}
 
-Commands: 
+ Commands: 
 
- help       prints this message  
- version    prints version information
- list       lists all available commands
+  help       print this message  
+  version    print version information
+  list       list all available commands (see candybar/config.php)
 
+ Options: 
 
-EOT;
+  -c  <filename> configuration file path; default is candybar/config.php");
+
+        $this->eol();
 
     }
 
@@ -94,7 +103,18 @@ EOT;
      * Prints available commands
      */
     protected function showList(){
-        //TODO...
+
+        $this->showVersion(TRUE);
+
+        $this->line(" Installed commands: ");
+        $this->eol();
+
+        foreach ($this->commands as $command=>$handler)
+            $this->eol("    {$command}" );
+
+        $this->line(" Use `candybar help [command]` to get help about a specific command.");
+        $this->eol();
+
     }
 
     /**
@@ -140,19 +160,25 @@ EOT;
      * @param bool $exit
      *
      * @return mixed
-     * @throws InvalidConfigurationException
-     * @throws UnknownCommandException
-     * @throws UnreadableFileException
-     * @throws \ReflectionException
+     *
+     * @throws \Exception
      */
     public static function main($exit = TRUE) {
 
         $command = new static(FALSE);
 
-        //configure
-        $command->config();
+        try{
 
-        return $command->run($_SERVER['argv'], $exit);
+            //Configure
+            $command->config();
+
+            //Run command
+            $command->run($_SERVER['argv'], $exit);
+        }
+        catch (\Exception $e) {
+            //Exit with error
+            $command->exitWithError($e);
+        }
 
     }
 
@@ -163,8 +189,6 @@ EOT;
      * @param bool $exit
      *
      * @return int|void
-     * @throws UnknownCommandException
-     * @throws \ReflectionException
      */
     public function run(array $argv, $exit=FALSE){
 
@@ -182,7 +206,7 @@ EOT;
                     return $this->showVersion();
 
                 case 'help':
-                    return $this->showUsage();
+                    return $this->showUsage(isset($argv[1]) ? $argv[1] : NULL);
 
                 default:
                     //Execute command
@@ -221,7 +245,11 @@ EOT;
 
                 //Do-ya-thing
                 ( '--help' == $argv[0] ) ?
+
+                    //Show command help
                     $handler->showHelp( $argv ) :
+
+                    //Run command
                     $handler->run( $argv );
 
             else {

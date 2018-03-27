@@ -12,6 +12,9 @@ return [
     //Register here available commands (candies): candybar {command} {--option}
     'bar' => [
 
+        'example:command' =>
+            \DevLib\Candybar\Commands\ExampleCommand::class,
+
         'coverage:style' =>
             \DevLib\Candybar\Commands\CoverageHtmlStyleCommand::class,
 

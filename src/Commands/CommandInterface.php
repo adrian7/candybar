@@ -13,4 +13,6 @@ interface CommandInterface{
 
     public function run(array $argv);
 
+    public function exitWithError(\Exception $e);
+
 }
