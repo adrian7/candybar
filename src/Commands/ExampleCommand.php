@@ -34,6 +34,12 @@ class ExampleCommand extends Command{
      */
     protected $options = [
 
+        //Required option
+        'account' => [
+            'required'      => TRUE,
+            'description'   => 'Account option is required'
+        ],
+
         //Option with default value and description
         'key' => [
             'default'     => NULL,
@@ -72,4 +78,5 @@ class ExampleCommand extends Command{
         $this->eol();
 
     }
+
 }

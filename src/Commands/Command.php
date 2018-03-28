@@ -84,6 +84,9 @@ abstract class Command implements CommandInterface {
 
             }
 
+        //Append --help option
+        $this->longOpts["help"] = NULL;
+
     }
 
     /**
@@ -144,8 +147,10 @@ abstract class Command implements CommandInterface {
 
     /**
      * Displays command help
+     *
+     * @param bool $exit
      */
-    public function showHelp() {
+    public function showHelp($exit=TRUE) {
 
         $argv    = $_SERVER['argv'];
 
@@ -192,6 +197,10 @@ abstract class Command implements CommandInterface {
 
         $this->eol();
 
+        if( $exit )
+            //Exit after showing help
+            exit( self::SUCCESS_EXIT );
+
     }
 
     /**
@@ -218,7 +227,7 @@ abstract class Command implements CommandInterface {
     }
 
     /**
-     * Parse command option
+     * Parse command option; All options are treated as optional
      *
      * @param array $options
      * @param array $longOptions
@@ -226,13 +235,20 @@ abstract class Command implements CommandInterface {
     public function parseOptions($options=[], $longOptions=[]){
 
         $commandOptions = array_keys($this->options);
+        $inputOptions   = [];
 
-        //Parse options
+        if( isset($options[0][0]) and '--help' == $options[0][0] )
+            //Show help
+            return $this->showHelp();
+
+        //Parse given options
         if( count($options) )
 
             foreach ($options as $option) {
 
                 list($name, $value) = $option;
+
+                $inputOptions[] = $name;
 
                 //Extract option name
                 $name = trim($name, '-');
@@ -257,7 +273,7 @@ abstract class Command implements CommandInterface {
 
                     if(
                         empty($value)
-                        and
+                            and
                         array_key_exists("{$name}=", $this->longOpts)
                     )
                         //The option requires a value
@@ -276,10 +292,16 @@ abstract class Command implements CommandInterface {
                         sprintf("Unrecognized option %s ... .", "--{$name}")
                     );
 
-                if( 'help' == $name )
-                    $this->showHelp();
-
             }
+
+        //Check the required options
+        foreach ($this->options as $name=>$spec)
+            if(
+                ( isset($spec['required']) and $spec['required'] )
+                    and
+                ! in_array($name, $inputOptions)
+            )
+                throw new \InvalidArgumentException("Option --{$name} is required... .");
 
     }
 
@@ -311,6 +333,8 @@ abstract class Command implements CommandInterface {
                 );
 
         }
+
+        //TODO check the required arguments
 
     }
 
