@@ -1,5 +1,7 @@
 # Candybar
 
+<coverage> | <builddate> | <dependencies>
+
 *Get the candies from your PHPUnit's tests results*
 
 **(!) Warning: this project is under heavy development. 

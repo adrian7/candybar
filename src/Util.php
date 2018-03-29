@@ -41,13 +41,17 @@ class Util{
     public static function lookupFile(
         $name,
         $ext='',
-        $paths=[DIRECTORY_SEPARATOR],
+        $paths=[],
         $cwd=TRUE,
         $fail=FALSE
     ){
 
         $name = ltrim($name, DIRECTORY_SEPARATOR);
         $paths= is_array($paths) ? $paths : [$paths];
+
+        if( empty($paths) )
+            //Defaults to current directory
+            $paths = [ getcwd() ];
 
         if( ! is_string($paths[0]) )
             throw new \InvalidArgumentException("Paths parameter should be a list of strings... .");

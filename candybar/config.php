@@ -15,16 +15,17 @@ return [
         'example:command' =>
             \DevLib\Candybar\Commands\ExampleCommand::class,
 
+        'badge:coverage' =>
+            \DevLib\Candybar\Commands\CoveragePercentBadgeCommand::class,
+
         'coverage:style' =>
-            \DevLib\Candybar\Commands\CoverageHtmlStyleCommand::class,
+           \DevLib\Candybar\Commands\CoverageHtmlStyleCommand::class,
 
-        'coverage:theme' => 'Stylecommand.theme',
+        //'coverage:theme' => 'Stylecommand.theme',
 
-        'badge:coverage' => 'BadgeGenertor.class',
+        //'badge:buildstatus' => 'BadgeBuildPasswing.class',
 
-        'badge:buildstatus' => 'BadgeBuildPasswing.class',
-
-        'upload:s3'         => 'S3Upload.class'
+        //'upload:s3'         => 'S3Upload.class'
         
     ]
 

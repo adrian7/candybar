@@ -12,8 +12,8 @@ class CliTest extends CliCommandTest {
         $this->runCommandTest('help', [], [
             'help',
             'Usage',
-            \DevLib\Candybar\Cli::VERSION]
-        );
+            \DevLib\Candybar\Cli::VERSION
+        ]);
 
     }
 
