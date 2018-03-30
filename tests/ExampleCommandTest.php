@@ -13,7 +13,7 @@ class ExampleCommandTest extends CliCommandTest {
         $argOne  = str_random(3);
         $argTwo  = str_random(4);
 
-        $this->runCommandTest(
+        $this->execute(
             'example:command',
             [
                 "{$argOne}",
@@ -30,7 +30,7 @@ class ExampleCommandTest extends CliCommandTest {
         $account = str_random(5);
         $key     = str_random(8);
 
-        $this->runCommandTest(
+        $this->silent(
             'example:command',
             [
                 "--account={$account}",
@@ -41,4 +41,13 @@ class ExampleCommandTest extends CliCommandTest {
 
     }
 
+    public function testThrowsException(){
+
+        //Expects exception to be thrown
+        $this->expectException(InvalidArgumentException::class);
+
+        //Run the command
+        $this->verbose( 'example:command');
+
+    }
 }

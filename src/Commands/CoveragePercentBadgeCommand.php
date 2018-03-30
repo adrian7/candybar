@@ -45,6 +45,7 @@ class CoveragePercentBadgeCommand extends Command{
         'cloverxml' => [
             'description' => 'The path to the clover coverage xml file'
         ]
+
     ];
 
     /**
@@ -108,6 +109,7 @@ class CoveragePercentBadgeCommand extends Command{
 
     /**
      * Handle command
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
      */
     public function handle() {
 

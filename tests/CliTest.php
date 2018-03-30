@@ -9,7 +9,7 @@ class CliTest extends CliCommandTest {
 
     public function testHelpCommand(){
 
-        $this->runCommandTest('help', [], [
+        $this->silent('help', [], [
             'help',
             'Usage',
             \DevLib\Candybar\Cli::VERSION
@@ -20,11 +20,22 @@ class CliTest extends CliCommandTest {
     public function testListCommand(){
 
         //Test list command with default commands
-        $this->runCommandTest('list', [], [
+        $this->silent('list', [], [
             'coverage:style',
-            'badge:coverage',
+            'coverage:badge',
             'example:command'
         ]);
+
+    }
+
+    public function testUnknownCommand(){
+
+        //Expecting an exception
+        $this->expectException(
+            \DevLib\Candybar\Exceptions\UnknownCommandException::class
+        );
+
+        $this->verbose('unknown');
 
     }
 

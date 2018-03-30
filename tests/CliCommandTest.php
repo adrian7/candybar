@@ -31,8 +31,16 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      * @param string $command
      * @param array $args
      * @param array $expectKeywords
+     * @param bool $captureOutput
+     *
+     * @return string|bool
      */
-    public function runCommandTest($command, $args=[], $expectKeywords=[]){
+    protected function execute(
+        $command,
+        $args=[],
+        $expectKeywords=[],
+        $captureOutput=TRUE
+    ){
 
         $args = array_merge([
             'bin/executable', //Script name
@@ -40,21 +48,53 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
         ], $args);
 
         //Turn on output buffering
-        ob_start();
+        if( $captureOutput )
+            ob_start();
 
         //Handle arguments
         self::$runner->run($args);
 
-        //Retrieve output
-        $result = ob_get_contents();
+        if( $captureOutput ){
 
-        //Turn of output buffering (assume it was turned off)
-        ob_end_clean();
+            //Retrieve output
+            $result = ob_get_contents();
 
-        //Do we get some keywords?
-        foreach ($expectKeywords as $keyword)
-            $this->assertContains($keyword, $result);
+            //Turn of output buffering (assume it was turned off)
+            ob_end_clean();
 
+            //Do we get some keywords?
+            foreach ($expectKeywords as $keyword)
+                $this->assertContains($keyword, $result);
+
+            //Return command output
+            return $result;
+
+        }
+
+        //Command executed successfully
+        return TRUE;
+
+    }
+
+    /**
+     * Run command
+     *
+     * @param string $command
+     * @param array $args
+     */
+    protected function verbose($command, $args=[]){
+        $this->execute($command, $args, [], FALSE);
+    }
+
+    /**
+     * Test command and capture output
+     *
+     * @param string $command
+     * @param array $args
+     * @param array $expectKeywords
+     */
+    protected function silent($command, $args=[], $expectKeywords=[]){
+        $this->execute($command, $args, $expectKeywords, TRUE);
     }
 
 }

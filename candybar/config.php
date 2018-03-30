@@ -15,7 +15,7 @@ return [
         'example:command' =>
             \DevLib\Candybar\Commands\ExampleCommand::class,
 
-        'badge:coverage' =>
+        'coverage:badge' =>
             \DevLib\Candybar\Commands\CoveragePercentBadgeCommand::class,
 
         'coverage:style' =>

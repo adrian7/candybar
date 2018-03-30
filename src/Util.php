@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - Utility class
  * @author adrian7
  * @version 1.0
  */
@@ -12,6 +12,8 @@ use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
 
 class Util{
+
+    const PHPUNIT_DEFAULT_CONFIG_FILE = 'phpunit.xml';
 
     /**
      * Logging config

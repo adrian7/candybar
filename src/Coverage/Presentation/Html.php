@@ -89,16 +89,22 @@ class Html implements PresentationInterface {
                 )
             );
 
-        //Add styles folders
+        //Add default styles folders
         $this->addStylesFolder(getcwd() . '/candybar/styles');
         $this->addStylesFolder(__DIR__ . '/../../../candybar/styles' );
 
-        //Add themes folders
+        //Add default themes folders
         $this->addThemesFolder(getcwd() . '/candybar/themes');
         $this->addThemesFolder(__DIR__ . '/../../../candybar/themes' );
 
     }
 
+    /**
+     * Add folder to lookup for styles
+     * @param $dir
+     *
+     * @return bool
+     */
     public function addStylesFolder($dir){
 
         if( $folder = realpath($dir) ){
@@ -113,6 +119,12 @@ class Html implements PresentationInterface {
         return FALSE;
     }
 
+    /**
+     * Add folder to lookup for themes
+     * @param $dir
+     *
+     * @return bool
+     */
     public function addThemesFolder($dir){
 
         if( $folder = realpath($dir) ){
@@ -178,11 +190,12 @@ class Html implements PresentationInterface {
      * @param $name
      *
      * @return bool
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
      */
     public function setStyle($name){
 
         if(
-            $name = Util::lookupFile(
+            $filename = Util::lookupFile(
                 $name,
                 'css',
                 $this->stylesDirs
@@ -190,10 +203,10 @@ class Html implements PresentationInterface {
         )
             //Style found, replace default styling
             return
-                copy($name, $this->getCssPath( self::MAIN_CSS_FILE ) );
+                copy($filename, $this->getCssPath( self::MAIN_CSS_FILE ) );
 
         //Can't find or can't copy the file
-        throw new \InvalidArgumentException("Can't read style file for {$name}... .");
+        throw new \InvalidArgumentException("Can't read style file for {$name} ... .");
 
     }
 
