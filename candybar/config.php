@@ -7,7 +7,7 @@
 
 return [
 
-    //Register here available commands (candies): candybar {command} {--option}
+    //Register here available commands (candies):
     'bar' => [
 
         'example:command' =>
@@ -24,8 +24,6 @@ return [
 
         'build:badge:date' =>
             \DevLib\Candybar\Commands\BuildDateBadgeCommand::class,
-
-        //'s3:upload'         => 'S3Upload.class'
 
         'readme:add-badges' =>
             \DevLib\Candybar\Commands\AddBadgesToReadmeCommand::class

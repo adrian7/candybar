@@ -7,6 +7,36 @@
 
 class CliTest extends CliCommandTest {
 
+    public function testInitCommand(){
+
+        //Backup cwd
+        $backupCWD = getcwd();
+
+        //Change cwd
+        chdir(__DIR__ . '/data');
+
+        $this->silent('init', [], [
+            'Welcome',
+            \DevLib\Candybar\Cli::VERSION
+        ]);
+
+        //Did the files were copied?
+        $this->assertFileExists(
+            getcwd() . DIRECTORY_SEPARATOR . 'config.php'
+        );
+
+        $this->assertFileExists(
+            getcwd() . DIRECTORY_SEPARATOR . 'styles/default.css'
+        );
+
+        //Restore cwd
+        chdir($backupCWD);
+
+        //Cleanup
+        //TODO remove directory
+
+    }
+
     public function testHelpCommand(){
 
         $this->silent('help', [], [

@@ -7,7 +7,7 @@
 **(!) Warning: this project is under heavy development. 
 Expect breaking changes with every new 0.x release.**
 
-**Check [the roadmap](https://github.com/adrian7/candybar/blob/master/ROADMAP.md) 
+**Check [the roadmap](https://github.com/adrian7/candybar/blob/dev/ROADMAP.md) 
 for upcoming features. Issues/pull requests are welcomed.**
 
 ### Candies: 
@@ -26,10 +26,16 @@ $ vendor/bin/candybar init
 ### Running the bar
 
 ```bash
-$ vendor/bin/candybar
+$ vendor/bin/candybar list
 ```
 
 
-### Available styles 
+### Available commands
+ - `coverage:style` applies a style to the html coverage presentation
+ - `coverage:badge` generates badge from clover xml coverage stats
+ - `license:badge` generates license badge, use arguments to set license and color 
+ - `readme:add-badges` adds badges to the readme file using <badge-name> placeholders
+ 
+### Examples
 
- - *[default](https://adrian7.github.io/candybar/styles/default.css)*
+ - `vendor/bin/candybar coverage:badge badges/coverage.svg --style=plastic`

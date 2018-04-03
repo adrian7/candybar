@@ -12,6 +12,7 @@ use DevLib\Candybar\Commands\CommandInterface;
 use DevLib\Candybar\Exceptions\UnknownCommandException;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
 use DevLib\Candybar\Exceptions\InvalidConfigurationException;
+use DevLib\Candybar\Exceptions\IncompleteInstallationException;
 
 class Cli extends Command {
 
@@ -67,8 +68,59 @@ class Cli extends Command {
     }
 
     /**
+     * Installs candybar in $CWD
+     *
+     * @throws IncompleteInstallationException
+     * @throws \InvalidArgumentException
+     */
+    public function install(){
+
+        $installDir = 'candybar';
+
+        if( ! is_dir( $installDir ) ){
+
+            //make install
+            if(
+                $installed = copy(
+                    __DIR__ . '/../candybar',
+                    'candybar'
+                )
+            );
+            else
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        "Could not install Candybar in %s . 
+                        Make sure the path is writable and try again.",
+                        getcwd()
+                    )
+                );
+
+        }
+
+        //Test installation
+
+        if( ! is_dir($installDir . DIRECTORY_SEPARATOR . 'styles')  )
+            throw new IncompleteInstallationException("styles");
+
+        if( ! is_dir($installDir . DIRECTORY_SEPARATOR . 'config.php')  )
+            throw new IncompleteInstallationException('config.php');
+
+        $this->showVersion(TRUE);
+        $this->line(
+            sprintf(
+                " Welcome! Your config file is at %s . ",
+                realpath($installDir . DIRECTORY_SEPARATOR . 'config.php')
+            )
+        );
+
+    }
+
+    /**
      * Prints CLI usage
-     * @param null|string $command
+     *
+     * @param string|null $command
+     *
+     * @throws \Exception
      */
     protected function showUsage($command=NULL) {
 
@@ -89,11 +141,7 @@ class Cli extends Command {
 
   help       print this message  
   version    print version information
-  list       list all available commands (see candybar/config.php)
-
- Options: 
-
-  -c  <filename> configuration file path; default is candybar/config.php");
+  list       list all available commands (see candybar/config.php)");
 
         $this->eol();
 
@@ -169,11 +217,9 @@ EOT;
 
         try{
 
-            //Configure
-            $command->config();
-
             //Run command
             $command->run($_SERVER['argv'], $exit);
+
         }
         catch (\Exception $e) {
             //Exit with error
@@ -189,6 +235,7 @@ EOT;
      * @param bool $exit
      *
      * @return int|void
+     * @throws \Exception
      */
     public function run(array $argv, $exit=FALSE){
 
@@ -197,15 +244,26 @@ EOT;
             //Init command
             array_shift($argv);
 
+            if( 'init' != $command )
+                //Configure
+                $this->config();
+
             switch ($command){
 
+                case 'init':
+                    //Install candybar
+                    return $this->install();
+
                 case 'list':
+                    //List available commands
                     return $this->showList();
 
                 case 'version':
+                    //Display version
                     return $this->showVersion();
 
                 case 'help':
+                    //Show cli/command help
                     return $this->showUsage(isset($argv[1]) ? $argv[1] : NULL);
 
                 default:
@@ -220,10 +278,11 @@ EOT;
     }
 
     /**
-     * Executes a given command
-     *
+     * Executes given command
      * @param string $cmd
      * @param array $argv
+     *
+     * @throws \Exception
      */
     public function execute($cmd, $argv){
 
