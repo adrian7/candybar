@@ -1,6 +1,6 @@
 # Candybar
 
-<coverage> <builddate> <dependencies> <license>
+<coverage> <builddate> <license>
 
 *Get the candies from your PHPUnit's tests results*
 

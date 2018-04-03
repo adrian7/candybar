@@ -35,7 +35,6 @@ class CoveragePercentBadgeCommand extends Command{
      */
     protected $options = [
 
-        //Option with default value and description
         'style' => [
             'default'     => 'svg',
             'description' =>

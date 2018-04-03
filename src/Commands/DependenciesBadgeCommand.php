@@ -7,10 +7,16 @@
 
 namespace DevLib\Candybar\Commands;
 
-class DependenciesCountBadgeCommand extends Command{
+class DependenciesBadgeCommand extends Command{
 
     protected $description =
-        "Generates badge with dependency count";
+        "Generates badge with dependency wighting in the dependency count/size";
+
+    // many dependencies / small size = ok
+    //many dependencies / large size => not ok
+    //lots of  dependencies / small size => not ok
+    //mantain dependency count / size, either break dependencies to belower in size
+    //of have less dependencies but bigger
 
     /**
      * Command arguments

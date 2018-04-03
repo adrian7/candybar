@@ -55,4 +55,29 @@ class BadgeGeneratorTest extends \PHPUnit\Framework\TestCase{
         @unlink($filename);
 
     }
+
+    public function testErrorWhenEmptyFilename(){
+
+        $this->expectException(InvalidArgumentException::class);
+
+        //Did we get an error when we miss the filename?
+        \DevLib\Candybar\Graphics\BadgeGenerator::make(
+            'subject',
+            'value'
+        )->save('');
+
+    }
+
+    public function testErrorWhenFilenameIsNotSvg(){
+
+        $this->expectException(InvalidArgumentException::class);
+
+        //Did we get an error when we miss the filename?
+        \DevLib\Candybar\Graphics\BadgeGenerator::make(
+            'subject',
+            'value'
+        )->save('somefile.not');
+
+    }
+
 }

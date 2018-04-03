@@ -7,9 +7,16 @@
 
 namespace DevLib\Candybar\Commands;
 
-class ExampleCommand extends Command{
+use DevLib\Candybar\Exceptions\UnreadableFileException;
+use DevLib\Candybar\Util;
 
-    protected $description = "An example command. Boilerplate code for your own commands";
+class AddBadgesToReadmeCommand extends Command{
+
+    protected $description =
+        "Links svg badges from folder to placeholders `<badge>` in your readme file. 
+        The command uses a template file (by default README.template.md) and builds the 
+        README.md from it. Use the --backup option to make a backup of the README.md 
+        before replacing it.";
 
     /**
      * Command arguments
@@ -17,14 +24,10 @@ class ExampleCommand extends Command{
      */
     protected $arguments = [
 
-        //An argument with default value and description
-        'one' => [
-            'default'     => 'value',
-            'description' => 'Just a placeholder argument'
-        ],
-
-        //An argument without description
-        'two' => 'defaultValue'
+        'folder' => [
+            'default'     => 'tests/logs/badges',
+            'description' => 'The folder to look for svg files.'
+        ]
 
     ];
 
@@ -34,54 +37,108 @@ class ExampleCommand extends Command{
      */
     protected $options = [
 
-        //Required option
-        'account' => [
-            'required'      => TRUE,
-            'description'   => 'Account option is required'
+        'template' => [
+            'default'     => 'README.template.md',
+            'description' =>
+                'The readme file with <tags> to add use as template. Default is README.template.md'
         ],
 
-        //Option with default value and description
-        'key' => [
-            'default'     => NULL,
-            'description' => 'The option description'
+        'output' => [
+            'default'     => 'README.md',
+            'description' => 'The readme file to build. Default is README.md'
         ],
 
-        //Option without a description
-        'secret' => NULL,
-
-        //Boolean option (switch)
-        'erase' => FALSE
+        'backup' => [
+            'default'     => FALSE,
+            'description' =>
+                'Save the original readme.md as readme.md.bk before building a new one'
+        ]
 
     ];
 
     /**
-     * Handle command
+     * @throws UnreadableFileException
      */
     public function handle() {
 
-        $this->line(" Hello world! I'm an example command.");
-        $this->eol(
-            sprintf(
-                " You selected the '%s' account" . PHP_EOL,
-                $this->option('account')
-            )
-        );
+        $output   = $this->option('output');
+        $template = $this->option('template');
+        $folder   = rtrim( $this->argument('folder'), DIRECTORY_SEPARATOR );
 
-        //Display arguments
-        $this->eol(" Arguments: ");
+        if( ! file_exists($template) ){
 
-        foreach (array_keys($this->arguments) as $arg)
-            if( $v = $this->argument($arg) )
-                $this->eol("  - {$arg}=" . strval($v) );
+            if( $template = Util::lookupFile($template) );
+            else
+                //Try lowercase file name
+                $template = Util::lookupFile( strtolower($template) );
 
-        //Display options
-        $this->line(" Options");
+        }
 
-        foreach (array_keys($this->options) as $opt)
-            if( $v = $this->option($opt) )
-                $this->eol("  - {$opt}=" . strval($v) );
 
-        $this->eol();
+        if( ! $template )
+            //Could not find template file
+            throw new \InvalidArgumentException(
+                sprintf(
+                    "Could not find readme file at %s ... .",
+                    $this->option('template')
+                )
+            );
+
+
+        if( ! is_dir($folder) )
+            throw new \InvalidArgumentException( "Cannot find folder {$folder} ... ." );
+
+        $badges   = glob("$folder/*svg");
+        $contents = file_get_contents($template);
+
+        //Lookup for badges and generate contents
+        foreach ( $badges as $badge ) {
+
+            if( ! is_file($badge) )
+                continue;
+
+            $tag = str_replace(
+                ['-', 'badge', '.svg'],
+                '',
+                basename(strtolower($badge))
+            );
+
+            $alt  = basename($badge);
+            $path = str_replace(dirname($output), '.', $badge);
+
+            //Generate replacement tag
+            $link = sprintf(
+                '![%s](%s)<img src="%s">',
+                $alt,
+                $path,
+                $path
+            );
+
+            //$this->line("Found badge " . basename($badge) );
+            //$this->line("Replacing <{$tag}> with svg in {$template} ... ." );
+
+            $contents = str_replace( "<$tag>", $link, $contents );
+
+        }
+
+        if( $contents != file_get_contents($template) ){
+
+            //Output the new readme
+
+            if( is_file($output) and $this->option('backup') )
+                //Save a backup of the output before overwriting
+                copy($output, "$output.bk");
+
+            if( file_put_contents($output, $contents) )
+                $this->info("Built new readme file as {$output}");
+            else
+                throw new UnreadableFileException("Could not save file {$output} ... .");
+        }
+        else
+            //No tags replaced
+            $this->warn(
+                "No badges replaced in {$template}. Please add some compatible tags... ."
+            );
 
     }
 

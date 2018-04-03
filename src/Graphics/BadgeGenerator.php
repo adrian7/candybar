@@ -74,6 +74,7 @@ class BadgeGenerator implements BadgeGeneratorInterface{
 
             default:
                 throw new \InvalidArgumentException("Unsupported style {$style} ... .");
+
         }
 
         //Generate badge as svg
@@ -94,6 +95,9 @@ class BadgeGenerator implements BadgeGeneratorInterface{
             throw new \InvalidArgumentException(
                 "You should generate a badge first - see BadgeGenerator::make()... ."
             );
+
+        if( empty( $filename ) )
+            throw new \InvalidArgumentException( "Please enter a file name ... ." );
 
         $ext = strtolower(
             substr($filename, strrpos($filename, '.')+1)
@@ -139,4 +143,5 @@ class BadgeGenerator implements BadgeGeneratorInterface{
         return '';
 
     }
+
 }

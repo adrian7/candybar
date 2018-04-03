@@ -1,15 +1,18 @@
 <?php
 /**
- * Candybar - [file description]
+ * Candybar - Command to generate the license badge
  * @author adrian7
  * @version 1.0
  */
 
 namespace DevLib\Candybar\Commands;
 
-class ExampleCommand extends Command{
+use DevLib\Candybar\Graphics\BadgeGenerator;
 
-    protected $description = "An example command. Boilerplate code for your own commands";
+class LicenseBadgeCommand extends Command{
+
+    protected $description =
+        "Generates the a license badge";
 
     /**
      * Command arguments
@@ -17,14 +20,15 @@ class ExampleCommand extends Command{
      */
     protected $arguments = [
 
-        //An argument with default value and description
-        'one' => [
-            'default'     => 'value',
-            'description' => 'Just a placeholder argument'
+        'license' => [
+            'default'     => 'MIT',
+            'description' => 'The license to short name. E.g. MIT or GPL3'
         ],
 
-        //An argument without description
-        'two' => 'defaultValue'
+        'filename' => [
+            'default'     => 'license-badge.svg',
+            'description' => 'Filename to export.'
+        ]
 
     ];
 
@@ -34,23 +38,16 @@ class ExampleCommand extends Command{
      */
     protected $options = [
 
-        //Required option
-        'account' => [
-            'required'      => TRUE,
-            'description'   => 'Account option is required'
+        'color' => [
+            'default'       => '428F7E',
+            'description'   => 'The badge color. Defaults to #428F7E'
         ],
 
-        //Option with default value and description
-        'key' => [
-            'default'     => NULL,
-            'description' => 'The option description'
+        'style' => [
+            'default'     => 'svg',
+            'description' =>
+                'The style for the badge. Supported styles are: plastic, flat and flat-square'
         ],
-
-        //Option without a description
-        'secret' => NULL,
-
-        //Boolean option (switch)
-        'erase' => FALSE
 
     ];
 
@@ -59,29 +56,19 @@ class ExampleCommand extends Command{
      */
     public function handle() {
 
-        $this->line(" Hello world! I'm an example command.");
-        $this->eol(
-            sprintf(
-                " You selected the '%s' account" . PHP_EOL,
-                $this->option('account')
-            )
-        );
+        $license = $this->argument('license');
+        $filename= $this->argument('filename');
 
-        //Display arguments
-        $this->eol(" Arguments: ");
+        $color   = $this->option('color');
+        $style   = $this->option('style');
 
-        foreach (array_keys($this->arguments) as $arg)
-            if( $v = $this->argument($arg) )
-                $this->eol("  - {$arg}=" . strval($v) );
-
-        //Display options
-        $this->line(" Options");
-
-        foreach (array_keys($this->options) as $opt)
-            if( $v = $this->option($opt) )
-                $this->eol("  - {$opt}=" . strval($v) );
-
-        $this->eol();
+        //Generate  badge
+        BadgeGenerator::make(
+            "license",
+            $license,
+            $color,
+            $style
+        )->save($filename);
 
     }
 

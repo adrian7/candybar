@@ -1,39 +1,35 @@
 <?php
 /**
- * Candybar - [file description]
+ * Candybar - Test of LicenseBadgeCommand class
  * @author adrian7
  * @version 1.0
  */
 
-class CoverageHtmlStyleCommandTest extends CliCommandTest {
+class LicenseBadgeCommandTest extends CliCommandTest {
 
     public function testCommand(){
 
-        $root     = ( __DIR__ . '/data/html' );
-        $original = ( __DIR__ . '/data/html/.css/style.css' );
-        $backup   = ( __DIR__ . '/data/html/.css/style.css.bk' );
+        $filename = ( __DIR__ . '/data/license-badge-test.svg' );
+        $color    = '0B9BA9';
+        $lic      = 'BSD2';
 
-        //Backup original file
-        if( copy($original, $backup) );
-        else
-            $this->fail("Could not copy {$original} to {$backup} ... .");
+        $this->silent('license:badge', [
+            $lic,
+            $filename,
+            "--color={$color}"
+        ]);
 
-        $this->silent(
-            'coverage:style',
-            [ "--root={$root}" ]
-        );
+        //Does the file was saved?
+        $this->assertFileExists($filename);
 
-        //Does file exists?
-        $this->assertNotEquals(
-            file_get_contents($backup),
-            file_get_contents($original)
-        );
+        //Does the file has expected text?
+        $this->assertContains($lic, file_get_contents($filename));
 
-        //Restore backup
-        copy($backup, $original);
+        //Does the file has expected color?
+        $this->assertContains($color, file_get_contents($filename));
 
         //Cleanup
-        @unlink($backup);
+        @unlink($filename);
 
     }
 
@@ -43,7 +39,7 @@ class CoverageHtmlStyleCommandTest extends CliCommandTest {
         $this->expectException(InvalidArgumentException::class);
 
         //Run the command
-        $this->verbose( 'coverage:badge', [
+        $this->verbose( 'license:badge', [
             '--style=unknown'
         ]);
 
