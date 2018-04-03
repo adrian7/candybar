@@ -12,11 +12,11 @@ interface FileTransportInterface{
     /**
      * Upload file to destination
      *
-     * @param string $filename
+     * @param string $path
      * @param string $destination
      *
      * @return mixed
      */
-    public function upload($filename, $destination);
+    public function upload($path, $destination);
 
 }

@@ -7,12 +7,13 @@
 
 namespace DevLib\Candybar\Commands;
 
+use Carbon\Carbon;
 use DevLib\Candybar\Graphics\BadgeGenerator;
 
-class LicenseBadgeCommand extends Command{
+class BuildDateBadgeCommand extends Command{
 
     protected $description =
-        "Generates the license badge";
+        "Generates build date badge.";
 
     /**
      * Command arguments
@@ -21,13 +22,8 @@ class LicenseBadgeCommand extends Command{
     protected $arguments = [
 
         'filename' => [
-            'default'     => 'license-badge.svg',
+            'default'     => 'builddate-badge.svg',
             'description' => 'Filename to export.'
-        ],
-
-        'license' => [
-            'default'     => 'MIT',
-            'description' => 'The license to short name. E.g. MIT or GPL3'
         ]
 
     ];
@@ -39,8 +35,8 @@ class LicenseBadgeCommand extends Command{
     protected $options = [
 
         'color' => [
-            'default'       => '428F7E',
-            'description'   => 'The badge color. Defaults to #428F7E'
+            'default'       => '4f5b93',
+            'description'   => 'The badge color. Defaults to #4f5b93'
         ],
 
         'style' => [
@@ -49,6 +45,16 @@ class LicenseBadgeCommand extends Command{
                 'The style for the badge. Supported styles are: plastic, flat and flat-square'
         ],
 
+        'format' => [
+            'default'       => 'Y-m-d',
+            'description'   => 'The date format. Defaults to Y-m-d'
+        ],
+
+        'timezone' => [
+            'default'       => 'UTC',
+            'description'   => 'The timezone to use. Defaults to UTC'
+        ]
+
     ];
 
     /**
@@ -56,16 +62,19 @@ class LicenseBadgeCommand extends Command{
      */
     public function handle() {
 
-        $license = $this->argument('license');
         $filename= $this->argument('filename');
 
         $color   = $this->option('color');
         $style   = $this->option('style');
+        $format  = $this->option('format');
+        $tz      = $this->option('timezone');
+
+        $date = Carbon::now($tz);
 
         //Generate  badge
         BadgeGenerator::make(
-            "license",
-            $license,
+            "built",
+            $date->format($format),
             $color,
             $style
         )->save($filename);

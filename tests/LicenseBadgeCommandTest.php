@@ -14,8 +14,8 @@ class LicenseBadgeCommandTest extends CliCommandTest {
         $lic      = 'BSD2';
 
         $this->silent('license:badge', [
-            $lic,
             $filename,
+            $lic,
             "--color={$color}"
         ]);
 

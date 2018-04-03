@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - CLI, Main entry point
  * @author adrian7
  * @version 1.0
  */

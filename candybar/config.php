@@ -1,13 +1,11 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - Configuration file
  * @author adrian7
- * @version 1.0
+ * @version 1.1
  */
 
 return [
-
-    'defaults' => [],
 
     //Register here available commands (candies): candybar {command} {--option}
     'bar' => [
@@ -24,9 +22,10 @@ return [
         'license:badge' =>
             \DevLib\Candybar\Commands\LicenseBadgeCommand::class,
 
-        //'badge:buildstatus' => 'BadgeBuildPasswing.class',
+        'build:badge:date' =>
+            \DevLib\Candybar\Commands\BuildDateBadgeCommand::class,
 
-        //'upload:s3'         => 'S3Upload.class'
+        //'s3:upload'         => 'S3Upload.class'
 
         'readme:add-badges' =>
             \DevLib\Candybar\Commands\AddBadgesToReadmeCommand::class

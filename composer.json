@@ -10,6 +10,9 @@
             "email": "adrian.silimon@yahoo.com"
         }
     ],
+    "bin": [
+      "bin/candybar"
+    ],
     "require": {
         "phpunit/phpunit": "^6.0",
         "phpunit/php-code-coverage": "^5.0",

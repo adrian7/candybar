@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+#Run phpunit, then candybar
+./vendor/bin/phpunit && \
+ ./bin/candybar coverage:badge tests/logs/badges/coverage.svg --style=flat-square && \
+ ./bin/candybar license:badge tests/logs/badges/license.svg MIT && \
+ ./bin/candybar build:badge:date tests/logs/badges/builddate.svg --format='F Y' && \
+ ./bin/candybar readme:add-badges tests/logs/badges/ && \
+ echo "Build OK!"

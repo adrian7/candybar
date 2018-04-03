@@ -61,7 +61,8 @@ class PutBadgesInReadmeCommandTest extends CliCommandTest {
             self::$folder,
             "--template={$template}",
             "--output={$output}",
-            "--backup"
+            "--backup",
+            "--img"
         ]);
 
         //Did we made a backup?

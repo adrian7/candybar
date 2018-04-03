@@ -52,6 +52,11 @@ class AddBadgesToReadmeCommand extends Command{
             'default'     => FALSE,
             'description' =>
                 'Save the original readme.md as readme.md.bk before building a new one'
+        ],
+
+        'img' => [
+            'default'       => FALSE,
+            'description'   => 'Include the <img> tag too, beside the link to it.'
         ]
 
     ];
@@ -64,6 +69,8 @@ class AddBadgesToReadmeCommand extends Command{
         $output   = $this->option('output');
         $template = $this->option('template');
         $folder   = rtrim( $this->argument('folder'), DIRECTORY_SEPARATOR );
+
+        $img = $this->option('img');
 
         if( ! file_exists($template) ){
 
@@ -108,11 +115,14 @@ class AddBadgesToReadmeCommand extends Command{
 
             //Generate replacement tag
             $link = sprintf(
-                '![%s](%s)<img src="%s">',
+                '![%s](%s)',
                 $alt,
-                $path,
                 $path
             );
+
+            if( $img )
+                //Also add the img tag
+                $link.= sprintf('<img src="%s">', $path);
 
             //$this->line("Found badge " . basename($badge) );
             //$this->line("Replacing <{$tag}> with svg in {$template} ... ." );

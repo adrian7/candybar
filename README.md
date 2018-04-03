@@ -1,6 +1,6 @@
 # Candybar
 
-![coverage.svg](tests/logs/badges/coverage.svg)<img src="tests/logs/badges/coverage.svg"> <builddate> ![license.svg](tests/logs/badges/license.svg)<img src="tests/logs/badges/license.svg">
+![coverage.svg](tests/logs/badges/coverage.svg) ![builddate.svg](tests/logs/badges/builddate.svg) ![license.svg](tests/logs/badges/license.svg)
 
 *Get the candies from your PHPUnit's tests results*
 

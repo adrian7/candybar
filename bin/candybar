@@ -1,8 +1,8 @@
 #!/usr/bin/env php
 <?php
 /**
- * PHPUnit CI Tools CLI
- * @version 0.1
+ * Candyvar CLI
+ * @version 0.2
  */
 
 require ( __DIR__ . '/../vendor/autoload.php' );
