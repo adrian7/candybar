@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - CLI tests
  * @author adrian7
  * @version 1.0
  */
@@ -11,6 +11,8 @@ class CliTest extends CliCommandTest {
 
         //Backup cwd
         $backupCWD = getcwd();
+        $newCWD    = ( __DIR__ . '/data' );
+        $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' )    ;
 
         //Change cwd
         chdir(__DIR__ . '/data');
@@ -22,22 +24,30 @@ class CliTest extends CliCommandTest {
 
         //Did the files were copied?
         $this->assertFileExists(
-            getcwd() . DIRECTORY_SEPARATOR . 'config.php'
+            $installDir . DIRECTORY_SEPARATOR . 'config.php'
         );
 
         $this->assertFileExists(
-            getcwd() . DIRECTORY_SEPARATOR . 'styles/default.css'
+            $installDir . DIRECTORY_SEPARATOR . 'styles/default.css'
         );
 
         //Restore cwd
         chdir($backupCWD);
 
         //Cleanup
-        //TODO remove directory
+        $sys = new \Symfony\Component\Filesystem\Filesystem();
+        $sys->remove($installDir);
 
     }
 
+    /**
+     * @throws \DevLib\Candybar\Exceptions\InvalidConfigurationException
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
     public function testHelpCommand(){
+
+        //Reset command runner
+        $this->setUp(TRUE);
 
         $this->silent('help', [], [
             'help',

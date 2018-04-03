@@ -95,4 +95,56 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
         }
 
     }
+
+    public function testCopyDir(){
+
+        $source = (__DIR__ . '/data/html');
+        $dest   = (__DIR__ . '/data/html-copied');
+
+        $testFileOne = ('index.html');
+        $testFileTwo = ('.css/style.css');
+
+        //Copy folder
+        \DevLib\Candybar\Util::copyDir($source, $dest);
+
+        //Did test files got copied?
+        $this->assertFileExists(
+            $dest . DIRECTORY_SEPARATOR . $testFileOne
+        );
+
+        $this->assertFileExists(
+            $dest . DIRECTORY_SEPARATOR . $testFileTwo
+        );
+
+        //Do file contents matches
+        $this->assertEquals(
+            file_get_contents($source . DIRECTORY_SEPARATOR . $testFileOne),
+            file_get_contents($dest . DIRECTORY_SEPARATOR . $testFileOne)
+        );
+
+        $this->assertEquals(
+            file_get_contents($source . DIRECTORY_SEPARATOR . $testFileTwo),
+            file_get_contents($dest . DIRECTORY_SEPARATOR . $testFileTwo)
+        );
+
+        //Cleanup
+        $sys = new \Symfony\Component\Filesystem\Filesystem();
+        $sys->remove($dest);
+
+    }
+
+    public function testGetSize(){
+
+        $file   = ( __DIR__ . '/data/html/index.html' );
+        $folder = ( __DIR__ . '/data' );
+
+        $fileSize   = 23;
+        $folderSize = 15430;
+
+        //Does the size matches
+        $this->assertEquals($fileSize, \DevLib\Candybar\Util::getSize($file));
+        $this->assertEquals($folderSize, \DevLib\Candybar\Util::getSize($folder));
+
+    }
+
 }

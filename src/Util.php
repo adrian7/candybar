@@ -10,6 +10,7 @@ namespace DevLib\Candybar;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Util{
 
@@ -237,6 +238,105 @@ class Util{
             },
             NULL
         );
+
+    }
+
+    /**
+     * Rounds file size and to lowest applicable multiple
+     *
+     * @param string $path
+     * @param int $decimals
+     *
+     * @return string
+     */
+    public static function getSizeHuman($path, $decimals=1){
+
+        $bytes  = self::getSize($path);
+        $sz     = 'BKMGTP';
+        $factor = floor((strlen($bytes) - 1) / 3);
+
+        return
+            sprintf(
+                "%.{$decimals}f",
+                $bytes / pow(1024, $factor)
+            ) .
+            @$sz[$factor];
+
+    }
+
+    /**
+     * Calculates size of the path
+     *
+     * @param string $path
+     *
+     * @return int
+     */
+    public static function getSize($path){
+
+        if( is_file($path) )
+            //Is a file
+            return filesize($path);
+
+        //Is a folder
+        $size    = 0;
+        $pattern = ( rtrim($path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . '*' );
+
+        foreach ( glob($pattern, GLOB_NOSORT ) as $each)
+            //Recurse to get size of each item
+            $size += is_file($each) ? filesize($each) : self::getSize($each);
+
+        return $size;
+
+    }
+
+    /**
+     * Copies source directory to destination
+     *
+     * @param string $source
+     * @param string $destination
+     * @param int $mode
+     *
+     * @return string
+     */
+    public static function copyDir($source, $destination='/', $mode=0755){
+
+        $sys = new Filesystem();
+
+        $destination = rtrim($destination, DIRECTORY_SEPARATOR);
+        $source      = rtrim($source, DIRECTORY_SEPARATOR);
+
+        if( ! is_dir($destination) )
+            //Create destination if it does not exist
+            $sys->mkdir($destination, $mode);
+
+        if( ! is_dir($destination) )
+            throw new \InvalidArgumentException("Could not create folder {$destination} ... .");
+
+        //Initialize an iterator
+        $directoryIterator = new \RecursiveDirectoryIterator(
+            $source,
+            \RecursiveDirectoryIterator::SKIP_DOTS
+        );
+
+        $iterator = new \RecursiveIteratorIterator(
+            $directoryIterator,
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $item) {
+
+            $path = ( $destination .  DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+
+            if ( $item->isDir() )
+                $sys->mkdir($path);
+            else
+                //Overwrite item
+                $sys->copy($item, $path);
+
+        }
+
+        //Return copied path
+        return $destination;
 
     }
 

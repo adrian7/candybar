@@ -81,7 +81,7 @@ class Cli extends Command {
 
             //make install
             if(
-                $installed = copy(
+                $installed = Util::copyDir(
                     __DIR__ . '/../candybar',
                     'candybar'
                 )
@@ -102,7 +102,7 @@ class Cli extends Command {
         if( ! is_dir($installDir . DIRECTORY_SEPARATOR . 'styles')  )
             throw new IncompleteInstallationException("styles");
 
-        if( ! is_dir($installDir . DIRECTORY_SEPARATOR . 'config.php')  )
+        if( ! is_file($installDir . DIRECTORY_SEPARATOR . 'config.php')  )
             throw new IncompleteInstallationException('config.php');
 
         $this->showVersion(TRUE);

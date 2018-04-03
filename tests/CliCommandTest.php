@@ -1,6 +1,6 @@
 <?php
 /**
- * Candybar - [file description]
+ * Candybar - CLI Command test helper
  * @author adrian7
  * @version 1.0
  */
@@ -13,12 +13,14 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     protected static $runner = NULL;
 
     /**
+     * @param bool $force
+     *
      * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
      * @throws \DevLib\Candybar\Exceptions\InvalidConfigurationException
      */
-    public function setUp() {
+    public function setUp($force=FALSE) {
 
-        if( empty(self::$runner) )
+        if( $force or empty(self::$runner) )
             self::$runner = new \DevLib\Candybar\Cli();
 
         self::$runner->config();

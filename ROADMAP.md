@@ -12,6 +12,7 @@
  - Support for applying coverage themes
  - Support for generating themes `new:theme`
  - Integration with [collision](https://github.com/nunomaduro/collision)
- - Support for CLI colors
+ - Support for CLI colors/foregrounds
+ - PSR3 error reporting
  - Support for better cli output (with fixed nr of cells)  
  
