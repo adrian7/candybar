@@ -19,7 +19,7 @@ class Cli extends Command {
     /**
      * Version
      */
-    const VERSION = '0.1-dev';
+    const VERSION = '0.1';
 
     /**
      * Codename

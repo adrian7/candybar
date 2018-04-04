@@ -19,7 +19,7 @@ if $BUILD_OK; then
     if [ "release" == $BRANCH ]; then
 
         #Generate the release badge
-        ./bin/candybar release:badge:date $DIR/release.svg --style=$STYLE
+        ./bin/candybar release:badge $DIR/release.svg --style=$STYLE
 
     fi
 
