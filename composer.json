@@ -16,9 +16,8 @@
     "require": {
         "phpunit/phpunit": "^6.0",
         "phpunit/php-code-coverage": "^5.0",
-        "badges/poser": "^1.2",
+        "adrian7/badges-poser": "^1.2.3",
         "laravie/parser": "~1.0",
-        "splitbrain/php-cli": "^1.1",
         "symfony/filesystem": "^4.0"
     },
     "autoload": {
