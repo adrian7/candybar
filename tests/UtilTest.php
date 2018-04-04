@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - Util class test
  * @author adrian7
  * @version 1.0
  */

@@ -25,6 +25,9 @@ return [
         'build:badge:date' =>
             \DevLib\Candybar\Commands\BuildDateBadgeCommand::class,
 
+        'release:badge' =>
+            \DevLib\Candybar\Commands\LatestReleaseBadgeCommand::class,
+
         'readme:add-badges' =>
             \DevLib\Candybar\Commands\AddBadgesToReadmeCommand::class
 

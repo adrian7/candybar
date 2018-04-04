@@ -27,6 +27,11 @@ class Cli extends Command {
     const CODENAME= 'Butterfinger';
 
     /**
+     * Associated release color
+     */
+    const RELEASE_COLOR = 'fcdc39';
+
+    /**
      * Configured commands
      *
      * @var array

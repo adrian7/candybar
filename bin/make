@@ -2,6 +2,8 @@
 
 STYLE=flat-square
 DIR=tests/logs/badges
+BUILD_OK=false
+BRANCH=$(git branch | grep \* | cut -d ' ' -f2-)
 
 #Run phpunit, then candybar
 ./vendor/bin/phpunit && \
@@ -9,5 +11,20 @@ DIR=tests/logs/badges
  ./bin/candybar coverage:badge $DIR/coverage.svg --style=$STYLE && \
  ./bin/candybar license:badge $DIR/license.svg MIT --style=$STYLE && \
  ./bin/candybar build:badge:date $DIR/builddate.svg --format='F Y' --style=$STYLE && \
- ./bin/candybar readme:add-badges $DIR && \
- echo "Build OK!"
+ BUILD_OK=true
+
+
+if $BUILD_OK; then
+    
+    if [ "release" == $BRANCH ]; then
+
+        #Generate the release badge
+        ./bin/candybar release:badge:date $DIR/release.svg --style=$STYLE
+
+    fi
+
+    ./bin/candybar readme:add-badges $DIR
+
+    echo "Build OK!"
+
+fi
