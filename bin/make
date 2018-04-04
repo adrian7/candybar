@@ -5,7 +5,7 @@ DIR=tests/logs/badges
 BUILD_OK=false
 BRANCH=$(git branch | grep \* | cut -d ' ' -f2-)
 
-#Run phpunit, then candybar
+#Run phpunit, then Candybar
 ./vendor/bin/phpunit && \
  ./bin/candybar coverage:style default && \
  ./bin/candybar coverage:badge $DIR/coverage.svg --style=$STYLE && \
@@ -26,5 +26,9 @@ if $BUILD_OK; then
     ./bin/candybar readme:add-badges $DIR
 
     echo "Build OK!"
+
+else
+
+    echo "Build failed!"
 
 fi
