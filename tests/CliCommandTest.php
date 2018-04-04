@@ -12,6 +12,16 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      */
     protected static $runner = NULL;
 
+    protected static $output = ( __DIR__ . '/data/cli.out' );
+
+    public function tearDown() {
+
+        //Cleanup output after test
+        if( file_get_contents(self::$output) )
+            file_put_contents(self::$output, '');
+
+    }
+
     /**
      * @param bool $force
      *
@@ -21,10 +31,14 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     public function setUp($force=FALSE) {
 
         if( $force or empty(self::$runner) )
-            self::$runner = new \DevLib\Candybar\Cli();
+            self::$runner = new \DevLib\Candybar\Cli( self::$output );
 
         self::$runner->config();
 
+    }
+
+    protected function getOutput(){
+        return file_get_contents(self::$output);
     }
 
     /**
@@ -33,15 +47,13 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      * @param string $command
      * @param array $args
      * @param array $expectKeywords
-     * @param bool $captureOutput
      *
      * @return string|bool
      */
     protected function execute(
         $command,
         $args=[],
-        $expectKeywords=[],
-        $captureOutput=TRUE
+        $expectKeywords=[]
     ){
 
         $args = array_merge([
@@ -49,32 +61,18 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
             trim($command),   //Command
         ], $args);
 
-        //Turn on output buffering
-        if( $captureOutput )
-            ob_start();
-
         //Handle arguments
         self::$runner->run($args);
 
-        if( $captureOutput ){
+        if( $expectKeywords ){
 
-            //Retrieve output
-            $result = ob_get_contents();
-
-            //Turn of output buffering (assume it was turned off)
-            ob_end_clean();
+            $output = $this->getOutput();
 
             //Do we get some keywords?
             foreach ($expectKeywords as $keyword)
-                $this->assertContains($keyword, $result);
-
-            //Return command output
-            return $result;
+                $this->assertContains($keyword, $output);
 
         }
-
-        //Command executed successfully
-        return TRUE;
 
     }
 
@@ -85,7 +83,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      * @param array $args
      */
     protected function verbose($command, $args=[]){
-        $this->execute($command, $args, [], FALSE);
+        $this->execute($command, $args);
     }
 
     /**
@@ -96,7 +94,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      * @param array $expectKeywords
      */
     protected function silent($command, $args=[], $expectKeywords=[]){
-        $this->execute($command, $args, $expectKeywords, TRUE);
+        $this->execute($command, $args, $expectKeywords);
     }
 
 }

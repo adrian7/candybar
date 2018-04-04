@@ -138,12 +138,19 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
         $file   = ( __DIR__ . '/data/folder/1024bytes' );
         $folder = ( __DIR__ . '/data/folder' );
 
-        $fileSize   = 1024;
-        $folderSize = 1024*2;
-
         //Does the size matches
-        $this->assertEquals($fileSize, \DevLib\Candybar\Util::getSize($file));
-        $this->assertEquals($folderSize, \DevLib\Candybar\Util::getSize($folder));
+        $this->assertEquals(1024, \DevLib\Candybar\Util::getSize($file));
+        $this->assertEquals(1024*2, \DevLib\Candybar\Util::getSize($folder));
+
+    }
+
+    public function testGetSizeHuman(){
+
+        $file   = ( __DIR__ . '/data/folder/1024bytes' );
+        $folder = ( __DIR__ . '/data/folder' );
+
+        $this->assertEquals('1.0K', \DevLib\Candybar\Util::getSizeHuman($file));
+        $this->assertEquals('2.0K', \DevLib\Candybar\Util::getSizeHuman($folder));
 
     }
 

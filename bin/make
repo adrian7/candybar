@@ -5,6 +5,7 @@ DIR=tests/logs/badges
 
 #Run phpunit, then candybar
 ./vendor/bin/phpunit && \
+ ./bin/candybar coverage:style default && \
  ./bin/candybar coverage:badge $DIR/coverage.svg --style=$STYLE && \
  ./bin/candybar license:badge $DIR/license.svg MIT --style=$STYLE && \
  ./bin/candybar build:badge:date $DIR/builddate.svg --format='F Y' --style=$STYLE && \

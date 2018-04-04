@@ -8,7 +8,7 @@
 namespace DevLib\Candybar\Commands;
 
 use PHPUnit\Util\Getopt;
-use PHPUnit\Framework\Exception;
+use DevLib\Candybar\Util;
 
 abstract class Command implements CommandInterface {
 
@@ -21,6 +21,12 @@ abstract class Command implements CommandInterface {
      * Abnormal exit - 2
      */
     const ABNORMAL_EXIT = 2;
+
+    /**
+     * The standard output STDOUR/ERR channel
+     * @var string
+     */
+    protected $stdout = 'standard';
 
     /**
      * List of cli options
@@ -55,9 +61,15 @@ abstract class Command implements CommandInterface {
     /**
      * Command constructor.
      *
-     * @param null $argv
+     * @param string $stdout
      */
-    public function __construct($argv=NULL) {
+    public function __construct($stdout=Util::STANDARD_OUTPUT) {
+
+        if( empty($stdout) )
+            throw new \InvalidArgumentException("Stdout should point to a file or `standard`... .");
+
+        //Set output channel
+        $this->stdout = $stdout;
 
         //Setup defaults
         $this->setup();
@@ -197,9 +209,10 @@ abstract class Command implements CommandInterface {
 
         $this->eol();
 
-        if( $exit )
+        //TODO add support for exit
+        //if( $exit )
             //Exit after showing help
-            exit( self::SUCCESS_EXIT );
+        //    exit( self::SUCCESS_EXIT );
 
     }
 
@@ -264,7 +277,8 @@ abstract class Command implements CommandInterface {
                     )
                 );
 
-                if( $valueOverriddenByOption)
+                if( $valueOverriddenByOption )
+                    //An invalid chain of options, e.g. --opt= --opt
                     throw new \InvalidArgumentException(
                         sprintf("Option %s requires a value... .", "--{$name}")
                     );
@@ -372,7 +386,7 @@ abstract class Command implements CommandInterface {
      *
      * @throws \InvalidArgumentException
      */
-    protected function argument($name){
+    public function argument($name){
 
         if( ! is_string($name) )
             throw new \InvalidArgumentException("Argument name should be a string... .");
@@ -382,6 +396,11 @@ abstract class Command implements CommandInterface {
 
     }
 
+    /**
+     * Sets an option
+     * @param string $name
+     * @param mixed $value
+     */
     protected function setOption($name, $value){
 
         $this->setInput($name, $value, $this->options);
@@ -390,11 +409,11 @@ abstract class Command implements CommandInterface {
 
     /**
      * Retrieve option value
-     * @param $name
+     * @param string $name
      *
      * @return mixed
      */
-    protected function option($name){
+    public function option($name){
 
         if( ! is_string($name) )
             throw new \InvalidArgumentException("Option name should be a string... .");
@@ -403,14 +422,26 @@ abstract class Command implements CommandInterface {
 
     }
 
+    /**
+     * Display warning message
+     * @param string $message
+     */
     public function warn($message){
         $this->line("(w) {$message}");
     }
 
+    /**
+     * Display informational message
+     * @param string $message
+     */
     public function info($message){
         $this->line("(i) {$message}");
     }
 
+    /**
+     * Display a success message
+     * @param string $message
+     */
     public function success($message){
         $this->line("(i) {$message}");
     }
@@ -422,7 +453,7 @@ abstract class Command implements CommandInterface {
      * @param string $style
      */
     public function line($message='', $style='default'){
-        print (PHP_EOL . strval($message) . PHP_EOL);
+        Util::out (PHP_EOL . strval($message) . PHP_EOL, $this->stdout);
         //TODO add support for style
     }
 
@@ -433,7 +464,7 @@ abstract class Command implements CommandInterface {
      * @param string $style
      */
     public function eol($message='', $style='default'){
-        print ($message . PHP_EOL);
+        Util::out($message . PHP_EOL, $this->stdout);
         //TODO add support for style
     }
 
@@ -449,13 +480,17 @@ abstract class Command implements CommandInterface {
             $this->showVersion(TRUE);
 
         //TODO support for PSR3
-        print ( PHP_EOL . " Error: " . $e->getMessage() . PHP_EOL . PHP_EOL );
-        print (" Stack trace: " . PHP_EOL);
+        Util::out (
+            PHP_EOL . " Error: " . $e->getMessage() . PHP_EOL . PHP_EOL,
+            $this->stdout
+        );
+        Util::out(
+            " Stack trace: " . PHP_EOL,
+            $this->stdout
+        );
 
         //Throw error
         throw $e;
-
-        exit(self::ABNORMAL_EXIT);
 
     }
 
@@ -463,7 +498,11 @@ abstract class Command implements CommandInterface {
      * Command handle
      */
     public function handle(){
-        //TODO add better handle with support and such
-        print "This command doesn't implement a handle function... .";
+        //TODO add better handle with support
+        Util::out(
+            "This command doesn't implement a handle function... .",
+            $this->stdout
+        );
     }
+
 }

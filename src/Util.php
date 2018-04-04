@@ -14,7 +14,15 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Util{
 
+    /**
+     * PHPUnit default configuration file
+     */
     const PHPUNIT_DEFAULT_CONFIG_FILE = 'phpunit.xml';
+
+    /**
+     * String to identify standard output
+     */
+    const STANDARD_OUTPUT = 'standard';
 
     /**
      * Logging config
@@ -337,6 +345,25 @@ class Util{
 
         //Return copied path
         return $destination;
+
+    }
+
+    /**
+     * Prints a string
+     * @param string $string
+     * @param string $channel
+     */
+    public static function out($string, $channel=self::STANDARD_OUTPUT){
+
+        //TODO add support for sprintf and handle gracefully colorized output
+
+        if( self::STANDARD_OUTPUT == $channel )
+            //Use standard output
+            print $string;
+
+        else
+            //Print to file
+            file_put_contents($channel, $string, FILE_APPEND);
 
     }
 

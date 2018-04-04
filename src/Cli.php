@@ -131,7 +131,7 @@ class Cli extends Command {
 
         if( $command )
             //Execute requested command's help
-            return $this->execute($command, ['--help']);
+            return $this->execute($command, [ $command, '--help' ]);
 
         //Print CLI usage instructions
 
@@ -177,26 +177,12 @@ class Cli extends Command {
         $version  = self::VERSION;
         $codename = self::CODENAME;
 
-        if( $short )
+        $this->line(" 🍬 Candybar v{$version} ({$codename})");
 
-            print <<<EOT
-            
- 🍬 Candybar v{$version} ({$codename})
- 
-EOT;
+        if( ! $short )
 
-        else
-
-            print <<<EOT
-
- 🍬 Candybar v{$version} ({$codename})
- 
- Project page:  https://github.com/adrian7/candybar
- Documentation: https://github.com/adrian7/candybar/wiki
- 
-
-EOT;
-
+            $this->line(" Project page:  https://github.com/adrian7/candybar");
+            $this->line(" Documentation: https://github.com/adrian7/candybar/wiki");
 
         $this->versionPrinted = TRUE;
 
@@ -213,7 +199,7 @@ EOT;
      */
     public static function main($exit = TRUE) {
 
-        $command = new static(FALSE);
+        $command = new static();
 
         try{
 
@@ -251,7 +237,7 @@ EOT;
             switch ($command){
 
                 case 'init':
-                    //Install candybar
+                    //Install Candybar
                     return $this->install();
 
                 case 'list':
@@ -291,8 +277,14 @@ EOT;
             $handler = $this->commands[$cmd];
 
             if( class_exists( $this->commands[$cmd] ) )
-                $handler = new $handler;
+
+                //Initialize command object
+                $handler = new $handler( $this->stdout );
+                //$handler = new $handler();
+
             else
+
+                //Class not found
                 $this->exitWithError(
                     new \ReflectionException(
                         "Cannot find class {$handler} for command {$cmd} ... ."
@@ -303,10 +295,10 @@ EOT;
             if( is_a($handler, CommandInterface::class) )
 
                 //Do-ya-thing
-                ( '--help' == $argv[0] ) ?
+                ( isset($argv[1]) and '--help' == $argv[1] ) ?
 
                     //Show command help
-                    $handler->showHelp( $argv ) :
+                    $handler->showHelp() :
 
                     //Run command
                     $handler->run( $argv );
