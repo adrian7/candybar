@@ -5,7 +5,7 @@
  * @version 0.2
  */
 
-require ( __DIR__ . '/../vendor/autoload.php' );
+require ( getcwd() . '/vendor/autoload.php' );
 
 //Process commands
 \DevLib\Candybar\Cli::main();

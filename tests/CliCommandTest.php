@@ -12,7 +12,17 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      */
     protected static $runner = NULL;
 
+    /**
+     * CLI output file
+     * @var string
+     */
     protected static $output = ( __DIR__ . '/data/cli.out' );
+
+    /**
+     * Backup of cwd
+     * @var string
+     */
+    protected static $backupCWD;
 
     public function tearDown() {
 
@@ -20,6 +30,9 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
         if( file_get_contents(self::$output) )
             file_put_contents(self::$output, '');
 
+        if( getcwd() != self::$backupCWD )
+            //Restore CWD
+            chdir(self::$backupCWD);
     }
 
     /**
@@ -29,6 +42,9 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      * @throws \DevLib\Candybar\Exceptions\InvalidConfigurationException
      */
     public function setUp($force=FALSE) {
+
+        //Backup CWD
+        self::$backupCWD = getcwd();
 
         if( $force or empty(self::$runner) )
             self::$runner = new \DevLib\Candybar\Cli( self::$output );

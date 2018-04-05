@@ -19,17 +19,17 @@ class Cli extends Command {
     /**
      * Version
      */
-    const VERSION = '0.1-dev';
+    const VERSION = '0.2-dev';
 
     /**
      * Codename
      */
-    const CODENAME= 'Butterfinger';
+    const CODENAME= 'Tootsie Rolls';
 
     /**
      * Associated release color
      */
-    const RELEASE_COLOR = 'fcdc39';
+    const RELEASE_COLOR = '441103';
 
     /**
      * Configured commands
@@ -84,7 +84,7 @@ class Cli extends Command {
 
         if( ! is_dir( $installDir ) ){
 
-            //make install
+            //Make install
             if(
                 $installed = Util::copyDir(
                     __DIR__ . '/../candybar',

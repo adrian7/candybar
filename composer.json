@@ -24,5 +24,10 @@
         "psr-4": {
             "DevLib\\Candybar\\": "src/"
         }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-dev": "0.x-dev"
+        }
     }
 }
