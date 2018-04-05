@@ -33,6 +33,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
         if( getcwd() != self::$backupCWD )
             //Restore CWD
             chdir(self::$backupCWD);
+
     }
 
     /**
