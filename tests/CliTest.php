@@ -7,15 +7,25 @@
 
 class CliTest extends CliCommandTest {
 
+    protected static $installDir;
+
+    public static function tearDownAfterClass() {
+
+        //Cleanup install dir
+        $sys = new \Symfony\Component\Filesystem\Filesystem();
+        $sys->remove(self::$installDir);
+
+    }
+
     public function testInitCommand(){
 
         //Backup cwd
         $backupCWD = getcwd();
         $newCWD    = ( __DIR__ . '/data' );
-        $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' )    ;
+        $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' );
 
         //Change cwd
-        chdir(__DIR__ . '/data');
+        chdir($newCWD);
 
         $this->silent('init', [], [
             'Welcome',
@@ -31,12 +41,11 @@ class CliTest extends CliCommandTest {
             $installDir . DIRECTORY_SEPARATOR . 'styles/default.css'
         );
 
+        //Set install dir
+        self::$installDir = $installDir;
+
         //Restore cwd
         chdir($backupCWD);
-
-        //Cleanup
-        $sys = new \Symfony\Component\Filesystem\Filesystem();
-        $sys->remove($installDir);
 
     }
 
@@ -79,4 +88,22 @@ class CliTest extends CliCommandTest {
 
     }
 
+    public function testThrowsIncompleteInstallException(){
+
+        //Expecting exception
+        $this->expectException(
+            \DevLib\Candybar\Exceptions\IncompleteInstallationException::class
+        );
+
+        $newCWD    = ( __DIR__ . '/data' );
+        $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' );
+
+        chdir( $newCWD );
+
+        //Remove config file
+        @unlink( $installDir . DIRECTORY_SEPARATOR . 'config.php' );
+
+        $this->silent('init');
+
+    }
 }
