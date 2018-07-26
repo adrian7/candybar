@@ -29,12 +29,6 @@ abstract class Command implements CommandInterface {
     protected $stdout = 'standard';
 
     /**
-     * List of cli options
-     * @var array
-     */
-    private $opts = [];
-
-    /**
      * Command long options
      * @var array
      */

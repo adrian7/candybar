@@ -3,14 +3,14 @@
  * Candybar - Coverage HTML Style Command, allows styling the html
  * coverage presentation
  * @author adrian7
- * @version 1.0
+ * @version 1.1
  */
 
 namespace DevLib\Candybar\Commands;
 
+use DevLib\Candybar\Util;
 use DevLib\Candybar\Coverage\Presentation\Html;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
-use DevLib\Candybar\Util;
 
 class CoverageHtmlStyleCommand extends Command{
 

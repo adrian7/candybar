@@ -61,8 +61,10 @@ class Html implements PresentationInterface {
     public function __construct($path) {
 
         if( is_file($path) and ( 'index.html' == basename($path) ) )
+            // Found index.html in path
             $this->base = dirname($path);
         else
+            // Assume we got a folder
             $this->base = rtrim($path, DIRECTORY_SEPARATOR);
 
         if( $this->base = realpath($this->base) );
@@ -85,7 +87,7 @@ class Html implements PresentationInterface {
             throw new \InvalidArgumentException(
                 sprintf(
                     "Can't find presentation style path at %s... .",
-                    ($this->cssBase . DIRECTORY_SEPARATOR . self::MAIN_CSS_FILE)
+                    ( $this->cssBase . DIRECTORY_SEPARATOR . self::MAIN_CSS_FILE )
                 )
             );
 
@@ -153,10 +155,10 @@ class Html implements PresentationInterface {
      *
      * @return null|string
      */
-    public function getCssPath($file='style.css'){
+    public function getCssPath( $file='style.css' ){
 
         return $file ?
-            (
+            realpath(
                 $this->cssBase .
                 DIRECTORY_SEPARATOR .
                 trim($file, DIRECTORY_SEPARATOR)
@@ -172,10 +174,10 @@ class Html implements PresentationInterface {
      *
      * @return null|string
      */
-    public function getJsPath($file=DIRECTORY_SEPARATOR){
+    public function getJsPath( $file=DIRECTORY_SEPARATOR ){
 
         return $file ?
-            (
+            realpath(
                 $this->jsBase .
                 DIRECTORY_SEPARATOR .
                 trim($file, DIRECTORY_SEPARATOR)

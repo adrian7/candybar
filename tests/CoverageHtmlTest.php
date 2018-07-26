@@ -72,4 +72,41 @@ class CoverageHtmlTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    public function testSetupFromFile(){
+
+        $path   = ( __DIR__ . '/data/html/index.html' );
+        $object = new \DevLib\Candybar\Coverage\Presentation\Html( $path );
+
+        // Does the path matches?
+        $this->assertEquals($path, $object->getIndexPath());
+
+    }
+
+    public function testInvalidSetupFolder(){
+
+        $this->expectException(InvalidArgumentException::class);
+
+        // Does it throws exception?
+        $object = new \DevLib\Candybar\Coverage\Presentation\Html( '/whenever' );
+
+        $this->expectException(InvalidArgumentException::class);
+
+        // Does it throws exception?
+        $object = new \DevLib\Candybar\Coverage\Presentation\Html(
+            __DIR__ . '/data/invalid'
+        );
+
+    }
+
+    public function testInvalidSetupCssFolder(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        // Does it throws exception?
+        $object = new \DevLib\Candybar\Coverage\Presentation\Html(
+            __DIR__ . '/data/invalid/missing-css'
+        );
+
+    }
+
 }

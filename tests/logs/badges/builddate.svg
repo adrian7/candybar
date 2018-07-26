@@ -1,20 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="102" height="20">
+<svg xmlns="http://www.w3.org/2000/svg" width="97" height="20">
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
         <stop offset="1" stop-opacity=".1"/>
     </linearGradient>
     <mask id="a">
-        <rect width="102" height="20" rx="0" fill="#fff"/>
+        <rect width="97" height="20" rx="0" fill="#fff"/>
     </mask>
     <g mask="url(#a)">
         <rect width="34" height="20" fill="#555"/>
-        <rect x="34" width="68" height="20" fill="#4f5b93"/>
-        <rect width="102" height="20" fill="url(#b)"/>
+        <rect x="34" width="63" height="20" fill="#4f5b93"/>
+        <rect width="97" height="20" fill="url(#b)"/>
     </g>
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <text x="18" y="15" fill="#010101" fill-opacity=".3">built</text>
         <text x="18" y="14">built</text>
-        <text x="67" y="15" fill="#010101" fill-opacity=".3">April 2018</text>
-        <text x="67" y="14">April 2018</text>
+        <text x="64.5" y="15" fill="#010101" fill-opacity=".3">July 2018</text>
+        <text x="64.5" y="14">July 2018</text>
     </g>
 </svg>

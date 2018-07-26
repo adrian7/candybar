@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Candybar make script
+
 STYLE=flat-square
 DIR=tests/logs/badges
 BUILD_OK=false
@@ -14,21 +16,21 @@ BRANCH=$(git branch | grep \* | cut -d ' ' -f2-)
  BUILD_OK=true
 
 
-if $BUILD_OK; then
+if ${BUILD_OK} ; then
     
-    if [ "release" == $BRANCH ]; then
+    if [ "release" == ${BRANCH} ]; then
 
         #Generate the release badge
-        ./bin/candybar release:badge:date $DIR/release.svg --style=$STYLE
+        ./bin/candybar release:badge:date "${DIR}/release.svg" --style=${STYLE}
 
     fi
 
-    ./bin/candybar readme:add-badges $DIR
+    ./bin/candybar readme:add-badges ${DIR}
 
-    echo "Build OK!"
+    echo "\nBuild OK!"
 
 else
 
-    echo "Build failed!"
+    echo "\nBuild failed!"
 
 fi

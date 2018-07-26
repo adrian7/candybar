@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
 /**
- * Candyvar CLI
+ * Candybar CLI
  * @version 0.2
  */
 
 require ( getcwd() . '/vendor/autoload.php' );
 
-//Process commands
+// Process commands
 \DevLib\Candybar\Cli::main();
