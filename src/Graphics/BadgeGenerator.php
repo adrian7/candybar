@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - Badge Generator helper
  * @author adrian7
  * @version 1.0
  */
@@ -20,6 +20,7 @@ class BadgeGenerator implements BadgeGeneratorInterface{
      * Available styles
      */
     const STYLE_DEFAULT     = 'svg';
+
     const STYLE_FLAT        = 'flat';
     const STYLE_PLASTIC     = 'plastic';
     const STYLE_FLAT_SQUARE = 'flat-square';

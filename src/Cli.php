@@ -225,7 +225,7 @@ class Cli extends Command {
      * @param array $argv
      * @param bool $exit
      *
-     * @return int|void
+     * @return int
      * @throws \Exception
      */
     public function run(array $argv, $exit=FALSE){
@@ -263,8 +263,8 @@ class Cli extends Command {
             }
 
         }
-        else
-            $this->showUsage();
+
+        return $this->showUsage();
 
     }
 

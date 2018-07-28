@@ -109,4 +109,20 @@ class CoverageHtmlTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnsupportedFeatureException
+     */
+    public function testUnsupportedFeatureException(){
+
+        $this->expectException(
+            \DevLib\Candybar\Exceptions\UnsupportedFeatureException::class
+        );
+
+        $path   = ( __DIR__ . '/data/html/index.html' );
+        $object = new \DevLib\Candybar\Coverage\Presentation\Html( $path );
+
+        $object->setTheme('missing theme');
+
+    }
+
 }

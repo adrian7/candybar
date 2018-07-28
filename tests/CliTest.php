@@ -84,7 +84,7 @@ class CliTest extends CliCommandTest {
             \DevLib\Candybar\Exceptions\UnknownCommandException::class
         );
 
-        $this->verbose('unknown');
+        $this->silent('unknown');
 
     }
 
@@ -106,4 +106,20 @@ class CliTest extends CliCommandTest {
         $this->silent('init');
 
     }
+
+    public function testThrowsInvalidConfigurationException(){
+
+        //Expecting exception
+        $this->expectException(
+            \DevLib\Candybar\Exceptions\InvalidConfigurationException::class
+        );
+
+        $installDir = ( __DIR__ . '/data/invalid-config' );
+
+        chdir( $installDir );
+
+        $this->silent('list');
+
+    }
+
 }

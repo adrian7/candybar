@@ -65,7 +65,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      * @param array $args
      * @param array $expectKeywords
      *
-     * @return string|bool
+     * @return void
      */
     protected function execute(
         $command,
