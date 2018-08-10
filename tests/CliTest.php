@@ -17,14 +17,31 @@ class CliTest extends CliCommandTest {
 
     }
 
+    /**
+     * @throws Exception
+     */
+    public function testCliEntryPoint(){
+
+        $_SERVER['argv'] = [
+            0 => "candybar",
+            1 => "help"
+        ];
+
+        // Can we see this string in the output?
+        $this->expectOutputRegex( "/Usage: candybar/");
+
+        \DevLib\Candybar\Cli::main();
+
+    }
+
     public function testInitCommand(){
 
-        //Backup cwd
+        // Backup cwd
         $backupCWD = getcwd();
         $newCWD    = ( __DIR__ . '/data' );
         $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' );
 
-        //Change cwd
+        // Change cwd
         chdir($newCWD);
 
         $this->silent('init', [], [
@@ -32,7 +49,7 @@ class CliTest extends CliCommandTest {
             \DevLib\Candybar\Cli::VERSION
         ]);
 
-        //Did the files were copied?
+        // Did the files were copied?
         $this->assertFileExists(
             $installDir . DIRECTORY_SEPARATOR . 'config.php'
         );
@@ -41,10 +58,10 @@ class CliTest extends CliCommandTest {
             $installDir . DIRECTORY_SEPARATOR . 'styles/default.css'
         );
 
-        //Set install dir
+        // Set install dir
         self::$installDir = $installDir;
 
-        //Restore cwd
+        // Restore cwd
         chdir($backupCWD);
 
     }
@@ -55,7 +72,7 @@ class CliTest extends CliCommandTest {
      */
     public function testHelpCommand(){
 
-        //Reset command runner
+        // Reset command runner
         $this->setUp(TRUE);
 
         $this->silent('help', [], [
@@ -68,7 +85,7 @@ class CliTest extends CliCommandTest {
 
     public function testListCommand(){
 
-        //Test list command with default commands
+        // Test list command with default commands
         $this->silent('list', [], [
             'coverage:style',
             'coverage:badge',
@@ -79,7 +96,7 @@ class CliTest extends CliCommandTest {
 
     public function testUnknownCommand(){
 
-        //Expecting an exception
+        // Expecting an exception
         $this->expectException(
             \DevLib\Candybar\Exceptions\UnknownCommandException::class
         );
@@ -90,7 +107,7 @@ class CliTest extends CliCommandTest {
 
     public function testThrowsIncompleteInstallException(){
 
-        //Expecting exception
+        // Expecting exception
         $this->expectException(
             \DevLib\Candybar\Exceptions\IncompleteInstallationException::class
         );
@@ -100,7 +117,7 @@ class CliTest extends CliCommandTest {
 
         chdir( $newCWD );
 
-        //Remove config file
+        // Remove config file
         @unlink( $installDir . DIRECTORY_SEPARATOR . 'config.php' );
 
         $this->silent('init');

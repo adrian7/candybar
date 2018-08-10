@@ -14,7 +14,7 @@
       "bin/candybar"
     ],
     "require": {
-        "phpunit/phpunit": "^6.0",
+        "phpunit/phpunit": "^6.0|^7.0",
         "phpunit/php-code-coverage": "^5.0",
         "adrian7/badges-poser": "^1.2.3",
         "laravie/parser": "~1.0",

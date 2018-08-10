@@ -7,10 +7,10 @@
 
 namespace DevLib\Candybar;
 
-use DevLib\Candybar\Exceptions\UnreadableFileException;
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
 use Symfony\Component\Filesystem\Filesystem;
+use DevLib\Candybar\Exceptions\UnreadableFileException;
 
 class Util{
 
@@ -168,7 +168,7 @@ class Util{
 
         if( empty(self::$loggingCfg) ){
 
-            //Initialize config
+            // Initialize config
             $cfg = self::parseXml($path, [
                 'logging' => [ 'uses' => 'logging.log[::type>type,::target>target]' ]
             ]);
@@ -180,10 +180,10 @@ class Util{
         }
 
         if( empty($type) )
-            //Return all available types
+            // Return all available types
             return self::$loggingCfg;
 
-        //Filter array for type
+        // Filter array for type
         return array_first(self::$loggingCfg, function ($value, $key) use($type){
 
             return
@@ -282,10 +282,10 @@ class Util{
     public static function getSize($path){
 
         if( is_file($path) )
-            //Is a file
+            // Is a file
             return filesize($path);
 
-        //Is a folder
+        // Is a folder
         $size    = 0;
         $pattern = ( rtrim($path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . '*' );
 
@@ -367,4 +367,13 @@ class Util{
 
     }
 
+    /**
+     * Drops cached metrics and configs
+     */
+    public static function dropCaches(){
+
+        self::$loggingCfg    = NULL;
+        self::$cloverMetrics = NULL;
+
+    }
 }

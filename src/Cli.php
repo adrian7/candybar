@@ -182,12 +182,16 @@ class Cli extends Command {
         $version  = self::VERSION;
         $codename = self::CODENAME;
 
+        // Short version info
         $this->line(" 🍬 Candybar v{$version} ({$codename})");
 
-        if( ! $short )
+        if( ! $short ){
 
+            // Long version info
             $this->line(" Project page:  https://github.com/adrian7/candybar");
             $this->line(" Documentation: https://github.com/adrian7/candybar/wiki");
+
+        }
 
         $this->versionPrinted = TRUE;
 
@@ -208,13 +212,15 @@ class Cli extends Command {
 
         try{
 
-            //Run command
+            // Run command
             $command->run($_SERVER['argv'], $exit);
 
         }
         catch (\Exception $e) {
-            //Exit with error
+
+            // Exit with error
             $command->exitWithError($e);
+
         }
 
     }

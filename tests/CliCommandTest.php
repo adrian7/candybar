@@ -26,13 +26,16 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
 
     public function tearDown() {
 
-        //Cleanup output after test
+        // Cleanup output after test
         if( file_get_contents(self::$output) )
             file_put_contents(self::$output, '');
 
         if( getcwd() != self::$backupCWD )
-            //Restore CWD
+            // Restore CWD
             chdir(self::$backupCWD);
+
+        // Drop all cached configs
+        \DevLib\Candybar\Util::dropCaches();
 
     }
 

@@ -47,7 +47,6 @@ class CoverageHtmlStyleCommand extends Command{
      * @throws UnreadableFileException
      */
     public function handle() {
-        //TODO handle
 
         if( $dir = $this->option('root') );
         else{
@@ -68,7 +67,7 @@ class CoverageHtmlStyleCommand extends Command{
 
         $presentation = new Html($dir);
 
-        //set presentation style
+        // Set presentation style
         $presentation->setStyle( $this->argument('style') );
 
     }
