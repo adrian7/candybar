@@ -470,20 +470,21 @@ abstract class Command implements CommandInterface {
     public function exitWithError(\Exception $e) {
 
         if( method_exists($this, 'showVersion') )
-            //Show version if available
+            // Show version if available
             $this->showVersion(TRUE);
 
-        //TODO support for PSR3
+        // TODO support for PSR3
         Util::out (
             PHP_EOL . " Error: " . $e->getMessage() . PHP_EOL . PHP_EOL,
             $this->stdout
         );
+
         Util::out(
             " Stack trace: " . PHP_EOL,
             $this->stdout
         );
 
-        //Throw error
+        // Throw error
         throw $e;
 
     }

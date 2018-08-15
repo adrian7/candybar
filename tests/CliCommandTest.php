@@ -47,7 +47,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      */
     public function setUp($force=FALSE) {
 
-        //Backup CWD
+        // Backup CWD
         self::$backupCWD = getcwd();
 
         if( $force or empty(self::$runner) )
@@ -77,11 +77,11 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     ){
 
         $args = array_merge([
-            'bin/executable', //Script name
-            trim($command),   //Command
+            'bin/executable', // Script name
+            trim($command),   // Command
         ], $args);
 
-        //Handle arguments
+        // Handle arguments
         self::$runner->run($args);
 
         if( $expectKeywords ){

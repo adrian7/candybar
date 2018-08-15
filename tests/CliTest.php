@@ -30,6 +30,7 @@ class CliTest extends CliCommandTest {
         // Can we see this string in the output?
         $this->expectOutputRegex( "/Usage: candybar/");
 
+        // Fire command
         \DevLib\Candybar\Cli::main();
 
     }
@@ -124,6 +125,23 @@ class CliTest extends CliCommandTest {
 
     }
 
+    public function testVersionCommand(){
+
+        $_SERVER['argv'] = [
+            0 => "candybar",
+            1 => "version"
+        ];
+
+        // Can we see this string in the output?
+        $this->expectOutputRegex(
+            join('', [ "/", "Candybar v", \DevLib\Candybar\Cli::VERSION, "/" ])
+        );
+
+        // Fire command
+        \DevLib\Candybar\Cli::main();
+
+    }
+
     public function testThrowsInvalidConfigurationException(){
 
         //Expecting exception
@@ -136,6 +154,41 @@ class CliTest extends CliCommandTest {
         chdir( $installDir );
 
         $this->silent('list');
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testExitsWithErrorWhenCommandIsNotFound(){
+
+        $_SERVER['argv'] = [
+            0 => "candybar",
+            1 => "unknown:command"
+        ];
+
+        // It should throw an exception
+        $this->expectException(\DevLib\Candybar\Exceptions\UnknownCommandException::class);
+
+        // Suppress output
+        $this->setOutputCallback(function() {});
+
+        // Fire command
+        \DevLib\Candybar\Cli::main();
+
+    }
+
+    public function testExitsWithErrorWhenClassIsNotFound(){
+
+        $newCWD    = ( __DIR__ . '/data/invalid-commands' );
+        $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' );
+
+        chdir( $newCWD );
+
+        // It should throw an exception
+        $this->expectException(\DevLib\Candybar\Exceptions\UnknownCommandException::class);
+
+        $this->silent('invalid:command');
 
     }
 

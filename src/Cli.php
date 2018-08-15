@@ -206,7 +206,7 @@ class Cli extends Command {
      *
      * @throws \Exception
      */
-    public static function main($exit = TRUE) {
+    public static function main( $exit = TRUE ) {
 
         $command = new static();
 
@@ -245,26 +245,26 @@ class Cli extends Command {
                 //Configure
                 $this->config();
 
-            switch ($command){
+            switch ( $command ) {
 
                 case 'init':
-                    //Install Candybar
+                    // Install Candybar
                     return $this->install();
 
                 case 'list':
-                    //List available commands
+                    // List available commands
                     return $this->showList();
 
                 case 'version':
-                    //Display version
+                    // Display version
                     return $this->showVersion();
 
                 case 'help':
-                    //Show cli/command help
+                    // Show cli/command help
                     return $this->showUsage(isset($argv[1]) ? $argv[1] : NULL);
 
                 default:
-                    //Execute command
+                    // Execute command
                     $this->execute($command, $argv);
             }
 
@@ -287,7 +287,7 @@ class Cli extends Command {
 
             $handler = $this->commands[$cmd];
 
-            if( class_exists( $this->commands[$cmd] ) )
+            if( class_exists( $handler ) )
 
                 //Initialize command object
                 $handler = new $handler( $this->stdout );
@@ -295,45 +295,41 @@ class Cli extends Command {
 
             else
 
-                //Class not found
-                $this->exitWithError(
-                    new \ReflectionException(
-                        "Cannot find class {$handler} for command {$cmd} ... ."
-                    )
-                );
+                // Class not found
+               throw new \ReflectionException(
+                   "Cannot find class {$handler} for command {$cmd} ... ."
+               );
 
-            //Run command with arguments
+            // Run command with arguments
             if( is_a($handler, CommandInterface::class) )
 
-                //Do-ya-thing
+                // Do-ya-thing
                 ( isset($argv[1]) and '--help' == $argv[1] ) ?
 
-                    //Show command help
+                    // Show command help
                     $handler->showHelp() :
 
-                    //Run command
+                    // Run command
                     $handler->run( $argv );
 
             else {
 
-                //No face no name no number
+                // No face no name no number
 
                 $classname = get_class($handler);
                 $required  = CommandInterface::class;
 
-                $this->exitWithError(
-                    new \ReflectionException(
-                        "Invalid handler provided `{$classname}`.
+                throw new \ReflectionException(
+                    "Invalid handler provided `{$classname}`.
                         Command handlers should implement `$required` ."
-                    )
                 );
 
             }
 
         }
         else
-            //Unrecognized command
-            $this->exitWithError( new UnknownCommandException($cmd) );
+            // Unrecognized command
+            throw new UnknownCommandException($cmd);
 
     }
 

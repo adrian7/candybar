@@ -7,7 +7,7 @@
 
 return [
 
-    //Register here available commands (candies):
+    // Register here available commands (candies):
     'bar' => [
 
         'example:command' =>

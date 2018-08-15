@@ -13,7 +13,7 @@ class CoverageHtmlStyleCommandTest extends CliCommandTest {
         $original = ( __DIR__ . '/data/html/.css/style.css' );
         $backup   = ( __DIR__ . '/data/html/.css/style.css.bk' );
 
-        //Backup original file
+        // Backup original file
         if( copy($original, $backup) );
         else
             $this->fail("Could not copy {$original} to {$backup} ... .");
