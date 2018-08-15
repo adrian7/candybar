@@ -60,7 +60,9 @@ abstract class Command implements CommandInterface {
     public function __construct($stdout=Util::STANDARD_OUTPUT) {
 
         if( empty($stdout) )
-            throw new \InvalidArgumentException("Stdout should point to a file or `standard`... .");
+            throw new \InvalidArgumentException(
+                "Stdout should point to a file or `standard`... ."
+            );
 
         //Set output channel
         $this->stdout = $stdout;
@@ -159,7 +161,6 @@ abstract class Command implements CommandInterface {
     public function showHelp($exit=TRUE) {
 
         $argv    = $_SERVER['argv'];
-
         $script  = basename( array_shift($argv) );
 
         if( $command = array_shift($argv) and 'help' == $command )
@@ -349,16 +350,16 @@ abstract class Command implements CommandInterface {
     /**
      * Command run
      * @param array $argv
-     * @param bool $exit
      *
      * @return int|void
+     * @throws \Exception
      */
-    public function run(array $argv){
+    public function run(array $argv) {
 
-        //Parse input
+        // Parse input
         $this->parseInput($argv);
 
-        //Handle command
+        // Handle command
         $this->handle();
 
     }
@@ -493,7 +494,7 @@ abstract class Command implements CommandInterface {
      * Command handle
      */
     public function handle(){
-        //TODO add better handle with support
+        // TODO add better handle with support
         Util::out(
             "This command doesn't implement a handle function... .",
             $this->stdout

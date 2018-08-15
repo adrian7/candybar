@@ -95,14 +95,34 @@ class CliTest extends CliCommandTest {
 
     }
 
-    public function testUnknownCommand(){
+    public function testCommandShowsHelp(){
 
-        // Expecting an exception
-        $this->expectException(
-            \DevLib\Candybar\Exceptions\UnknownCommandException::class
+        // Test if help is displayed for example:command
+        $this->silent('help', ['example:command'], [
+            'An example command. Boilerplate code for your own commands',
+            'Usage:',
+            'example:command'
+        ]);
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testVersionCommand(){
+
+        $_SERVER['argv'] = [
+            0 => "candybar",
+            1 => "version"
+        ];
+
+        // Can we see this string in the output?
+        $this->expectOutputRegex(
+            join('', [ "/", "Candybar v", \DevLib\Candybar\Cli::VERSION, "/" ])
         );
 
-        $this->silent('unknown');
+        // Fire command
+        \DevLib\Candybar\Cli::main();
 
     }
 
@@ -125,23 +145,6 @@ class CliTest extends CliCommandTest {
 
     }
 
-    public function testVersionCommand(){
-
-        $_SERVER['argv'] = [
-            0 => "candybar",
-            1 => "version"
-        ];
-
-        // Can we see this string in the output?
-        $this->expectOutputRegex(
-            join('', [ "/", "Candybar v", \DevLib\Candybar\Cli::VERSION, "/" ])
-        );
-
-        // Fire command
-        \DevLib\Candybar\Cli::main();
-
-    }
-
     public function testThrowsInvalidConfigurationException(){
 
         //Expecting exception
@@ -154,6 +157,17 @@ class CliTest extends CliCommandTest {
         chdir( $installDir );
 
         $this->silent('list');
+
+    }
+
+    public function testThrowsExceptionForUnknownCommand(){
+
+        // Expecting an exception
+        $this->expectException(
+            \DevLib\Candybar\Exceptions\UnknownCommandException::class
+        );
+
+        $this->silent('unknown');
 
     }
 
@@ -186,9 +200,25 @@ class CliTest extends CliCommandTest {
         chdir( $newCWD );
 
         // It should throw an exception
-        $this->expectException(\DevLib\Candybar\Exceptions\UnknownCommandException::class);
+        $this->expectException(\ReflectionException::class);
 
+        // Fire invalid command
         $this->silent('invalid:command');
+
+    }
+
+    public function testExitsWithErrorWhenClassNotImplementsCommandInterface(){
+
+        $newCWD    = ( __DIR__ . '/data/invalid-commands' );
+        $installDir= ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' );
+
+        chdir( $newCWD );
+
+        // It should throw an exception
+        $this->expectException(\ReflectionException::class);
+
+        // Fire invalid command
+        $this->silent('implements:wrong');
 
     }
 

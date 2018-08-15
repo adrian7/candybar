@@ -9,6 +9,7 @@ namespace DevLib\Candybar;
 
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
 
@@ -61,7 +62,7 @@ class Util{
         $paths= is_array($paths) ? $paths : [$paths];
 
         if( empty($paths) )
-            //Defaults to current directory
+            // Defaults to current directory
             $paths = [ getcwd() ];
 
         if( ! is_string($paths[0]) )
@@ -71,16 +72,16 @@ class Util{
 
             $ext = ".{$ext}";
 
-            //Check if the file has .ext
+            // Check if the file has .ext
 
             if( $ext == mb_substr( mb_strtolower($name), -( mb_strlen($ext) ) ) );
             else
-                //Add extension
+                // Add extension
                 $name.= $ext;
 
         }
 
-        //Lookup in paths
+        // Lookup in paths
         foreach ($paths as $path )
             if(
                 is_dir($path)
@@ -91,12 +92,12 @@ class Util{
             )
                 return realpath($file);
 
-        //Lookup in CWD
+        // Lookup in CWD
         if( $cwd and is_file($name) )
             return realpath($name);
 
         if( $fail )
-            //File not found
+            // File not found
             throw new UnreadableFileException(
                 $name,
                 ( $cwd ? array_merge($paths, [getcwd()] ) : $paths )
@@ -118,8 +119,7 @@ class Util{
      */
     public static function findFileOrFail($name, $paths=[], $ext=FALSE, $cwd=TRUE){
 
-        if( $path = self::lookupFile($name, $ext, $paths, $cwd, TRUE) )
-            return $path;
+        return self::lookupFile($name, $ext, $paths, $cwd, TRUE);
 
     }
 
@@ -305,6 +305,7 @@ class Util{
      * @param int $mode
      *
      * @return string
+     * @throws IOException
      */
     public static function copyDir($source, $destination='/', $mode=0755){
 
@@ -314,13 +315,10 @@ class Util{
         $source      = rtrim($source, DIRECTORY_SEPARATOR);
 
         if( ! is_dir($destination) )
-            //Create destination if it does not exist
+            // Create destination if it does not exist
             $sys->mkdir($destination, $mode);
 
-        if( ! is_dir($destination) )
-            throw new \InvalidArgumentException("Could not create folder {$destination} ... .");
-
-        //Initialize an iterator
+        // Initialize an iterator
         $directoryIterator = new \RecursiveDirectoryIterator(
             $source,
             \RecursiveDirectoryIterator::SKIP_DOTS
@@ -336,9 +334,10 @@ class Util{
             $path = ( $destination .  DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
 
             if ( $item->isDir() )
+                // Create dir
                 $sys->mkdir($path);
             else
-                //Overwrite item
+                // Overwrite item
                 $sys->copy($item, $path);
 
         }

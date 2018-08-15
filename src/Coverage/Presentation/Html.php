@@ -215,6 +215,7 @@ class Html implements PresentationInterface {
     /**
      * @param string $source
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function createStyle($source='default'){
@@ -224,6 +225,7 @@ class Html implements PresentationInterface {
     /**
      * @param $contents
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function addJsScript($contents){
@@ -233,6 +235,7 @@ class Html implements PresentationInterface {
     /**
      * @param $name
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function setTheme($name){
@@ -242,12 +245,16 @@ class Html implements PresentationInterface {
     /**
      * @param string $source
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function createTheme($source='default'){
         throw new UnsupportedFeatureException("Feature not supported... .");
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setupDefaultTheme(){
         //TODO...
     }

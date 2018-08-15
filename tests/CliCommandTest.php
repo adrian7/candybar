@@ -63,12 +63,11 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
 
     /**
      * Runs a cli command and looks up keywords in the output
-     *
-     * @param string $command
+     * @param $command
      * @param array $args
      * @param array $expectKeywords
      *
-     * @return void
+     * @throws Exception
      */
     protected function execute(
         $command,
@@ -80,6 +79,9 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
             'bin/executable', // Script name
             trim($command),   // Command
         ], $args);
+
+        // Set args
+        $_SERVER['argv'] = $args;
 
         // Handle arguments
         self::$runner->run($args);

@@ -154,4 +154,38 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFalseWhenFileNotFound(){
+
+        $result = \DevLib\Candybar\Util::lookupFile(
+            '/path/to/somefile',
+            '.ext',
+            ['/there']
+        );
+
+        $this->assertFalse($result);
+
+    }
+
+    public function testFailsToReadMissingXml(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        \DevLib\Candybar\Util::parseXml('/very/obnoxious/path.xml', []);
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFailsOnInvalidLookupPaths(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        \DevLib\Candybar\Util::lookupFile('somefile', '', [new stdClass()]);
+
+    }
+
 }

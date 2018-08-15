@@ -238,11 +238,11 @@ class Cli extends Command {
 
         if( count($argv) and isset($argv[1]) and $command = trim($argv[1]) ){
 
-            //Init command
+            // Init command
             array_shift($argv);
 
             if( 'init' != $command )
-                //Configure
+                // Configure
                 $this->config();
 
             switch ( $command ) {
