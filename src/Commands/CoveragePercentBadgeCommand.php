@@ -64,12 +64,12 @@ class CoveragePercentBadgeCommand extends Command{
      * @var array
      */
     protected $colors = [
-        'red'       => 'F51455', //Under lower threshold
-        'pink'      => 'F65676', //Close to lower threshold
-        'yellow'    => 'F9C134', //Just over the lower threshold
-        'orange'    => 'F78500', //Close to upper threshold
-        'lime'      => '11CD86', //Just over upper threshold
-        'green'     => '63B931', //Over upper threshold with 50%
+        'red'       => 'F51455', // Under lower threshold
+        'pink'      => 'F65676', // Close to lower threshold
+        'yellow'    => 'F9C134', // Just over the lower threshold
+        'orange'    => 'F78500', // Close to upper threshold
+        'lime'      => '11CD86', // Just over upper threshold
+        'green'     => '63B931', // Over upper threshold with 50%
     ];
 
     /**
@@ -82,6 +82,7 @@ class CoveragePercentBadgeCommand extends Command{
 
         $colors = array_values($this->colors);
 
+        // Calculate color points
         $points = [
             $this->lowThreshold/2 + $this->lowThreshold/4,
             $this->lowThreshold,
@@ -91,7 +92,7 @@ class CoveragePercentBadgeCommand extends Command{
             $this->highThreshold
         ];
 
-        //Red
+        // Red
         if( $coverage <= $points[0] )
             return array_shift($colors);
 
@@ -101,7 +102,7 @@ class CoveragePercentBadgeCommand extends Command{
             else
                 return $colors[$i];
 
-        //Green
+        // Green
         return array_pop($colors);
 
     }

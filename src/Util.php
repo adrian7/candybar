@@ -205,7 +205,7 @@ class Util{
 
         if( empty(self::$cloverMetrics) ){
 
-            //List of metrics to extract
+            // List of metrics to extract
             $metrics = @join(',::', [
                 'files>files',
                 'loc>loc',
@@ -221,7 +221,7 @@ class Util{
                 'coveredelements>coveredelements',
             ]);
 
-            //Initialize config
+            // Initialize config
             $metrics = self::parseXml($path, [
                 'metrics' => [ 'uses' => "project.metrics[::{$metrics}]" ]
             ]);
@@ -236,7 +236,7 @@ class Util{
             //Return all available types
             return self::$cloverMetrics;
 
-        //Filter array for metric
+        // Filter array for metric
         return array_first(
             self::$cloverMetrics,
             function ($value, $key) use($metric){

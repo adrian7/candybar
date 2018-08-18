@@ -144,6 +144,30 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    public function testRound(){
+
+        $this->assertEquals(
+            12.861,
+            \DevLib\Candybar\Util::round(12.86056, 3)
+        );
+
+        $this->assertEquals(
+            9.77,
+            \DevLib\Candybar\Util::round(9.76537, 2)
+        );
+
+        $this->assertEquals(
+            53.1,
+            \DevLib\Candybar\Util::round(53.1234, 1)
+        );
+
+        $this->assertEquals(
+            10,
+            \DevLib\Candybar\Util::round(10.2525, 0)
+        );
+
+    }
+
     public function testGetSizeHuman(){
 
         $file   = ( __DIR__ . '/data/folder/1024bytes' );

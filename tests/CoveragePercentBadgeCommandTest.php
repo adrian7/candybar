@@ -20,10 +20,34 @@ class CoveragePercentBadgeCommandTest extends CliCommandTest {
             ]
         );
 
-        //Does file exists?
+        // Does file exists?
         $this->assertFileExists($filename);
 
-        //Cleanup
+        // Cleanup
+        @unlink($filename);
+
+    }
+
+    public function testBadgeColorGreenOnFullCoverage(){
+
+        $cloverxml = ( __DIR__ . '/data/coverage-clover-sample-green.xml' );
+        $filename  = ( __DIR__ . '/data/coverage-badge-green.svg' );
+
+        $this->silent(
+            'coverage:badge',
+            [
+                "{$filename}",
+                "--cloverxml={$cloverxml}"
+            ]
+        );
+
+        // Does file exists?
+        $this->assertFileExists($filename);
+
+        // Is the badge green?
+        $this->assertContains('63B931', file_get_contents($filename));
+
+        // Cleanup
         @unlink($filename);
 
     }

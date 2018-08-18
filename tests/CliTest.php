@@ -11,7 +11,7 @@ class CliTest extends CliCommandTest {
 
     public static function tearDownAfterClass() {
 
-        //Cleanup install dir
+        // Cleanup install dir
         $sys = new \Symfony\Component\Filesystem\Filesystem();
         $sys->remove(self::$installDir);
 
@@ -126,7 +126,31 @@ class CliTest extends CliCommandTest {
 
     }
 
-    public function testThrowsIncompleteInstallException(){
+    public function testFailsToInstallWhenPathNotWritable(){
+
+        $installDir = '/tmp/theresNothingToDoHere';
+
+        // Expecting exception
+        $this->expectException( \InvalidArgumentException::class );
+
+        // Create tmp dir
+        mkdir($installDir);
+
+        // Change current directory
+        chdir( $installDir );
+
+        // Remove dir
+        rmdir($installDir);
+
+        // Execute init command
+        $this->silent('init');
+
+    }
+
+    /**
+     * @depends testInitCommand
+     */
+    public function testThrowsIncompleteInstallExceptionIfConfigFileIsMissing(){
 
         // Expecting exception
         $this->expectException(
@@ -144,6 +168,32 @@ class CliTest extends CliCommandTest {
         $this->silent('init');
 
     }
+
+    /**
+     * @depends testInitCommand
+     */
+    public function testThrowsIncompleteInstallExceptionIfStyledDirIsMissing(){
+
+        // Expecting exception
+        $this->expectException(
+            \DevLib\Candybar\Exceptions\IncompleteInstallationException::class
+        );
+
+        $newCWD     = ( __DIR__ . '/data' );
+        $installDir = ( $newCWD . DIRECTORY_SEPARATOR . '/candybar' );
+
+        chdir( $newCWD );
+
+        // Rename styles folder
+        @rename(
+            $installDir . DIRECTORY_SEPARATOR . 'styles',
+            $installDir . DIRECTORY_SEPARATOR . 'renamed'
+        );
+
+        $this->silent('init');
+
+    }
+
 
     public function testThrowsInvalidConfigurationException(){
 

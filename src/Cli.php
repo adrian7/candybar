@@ -13,6 +13,7 @@ use DevLib\Candybar\Exceptions\UnknownCommandException;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
 use DevLib\Candybar\Exceptions\InvalidConfigurationException;
 use DevLib\Candybar\Exceptions\IncompleteInstallationException;
+use Symfony\Component\Filesystem\Exception\IOException;
 
 class Cli extends Command {
 
@@ -78,20 +79,20 @@ class Cli extends Command {
      * @throws IncompleteInstallationException
      * @throws \InvalidArgumentException
      */
-    public function install(){
+    public function install() {
 
         $installDir = 'candybar';
 
         if( ! is_dir( $installDir ) ){
 
-            //Make install
-            if(
-                $installed = Util::copyDir(
-                    __DIR__ . '/../candybar',
-                    'candybar'
-                )
-            );
-            else
+            try{
+
+                // Make install
+                Util::copyDir( __DIR__ . '/../candybar', $installDir );
+
+            }
+            catch (IOException $e){
+
                 throw new \InvalidArgumentException(
                     sprintf(
                         "Could not install Candybar in %s . 
@@ -99,6 +100,8 @@ class Cli extends Command {
                         getcwd()
                     )
                 );
+
+            }
 
         }
 
@@ -110,6 +113,7 @@ class Cli extends Command {
         if( ! is_file($installDir . DIRECTORY_SEPARATOR . 'config.php')  )
             throw new IncompleteInstallationException('config.php');
 
+        // Roger!
         $this->showVersion(TRUE);
         $this->line(
             sprintf(

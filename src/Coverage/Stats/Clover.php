@@ -44,10 +44,13 @@ class Clover implements StatisticsInterface{
         $this->filename = $filename;
 
         if( is_readable($this->filename) )
+
+            // Parse metrics from file
             $this->parseMetrics();
 
         else
 
+            // Can't read filename
             throw new \InvalidArgumentException("Cannot read file at {$this->filename}... .");
 
     }
@@ -94,6 +97,9 @@ class Clover implements StatisticsInterface{
         return $this->elements;
     }
 
+    /**
+     * @return mixed
+     */
     public function coveredElementsCount(){
         return $this->coveredElements;
     }
@@ -132,22 +138,22 @@ class Clover implements StatisticsInterface{
         foreach ($metrics as $metric){
 
             if( ! property_exists($this, $metric) )
-                //Metric not available
+                // Metric not available
                 throw new \InvalidArgumentException("Metric {$metric} is not available... ");
 
             $covered  = ('covered' . ucfirst($metric) );
 
             if( 0 == $this->{$covered} )
-                //uncovered 100%
+                // uncovered 100%
                 $values[] = 0;
 
             elseif( 0 < $this->{$metric} )
-                //Percentage uncovered
+                // Percentage uncovered
                 $values[] = floatval( $this->{$covered} / $this->{$metric} );
 
         }
 
-        //Calculate percentage covered
+        // Calculate percentage covered
         $percentage = ( $s = array_sum($values) ) ?
             ( $s / count($values) ) * 100 :
             0;
