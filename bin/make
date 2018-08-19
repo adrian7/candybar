@@ -20,17 +20,17 @@ if ${BUILD_OK} ; then
     
     if [ "release" == ${BRANCH} ]; then
 
-        #Generate the release badge
+        # Generate the release badge
         ./bin/candybar release:badge:date "${DIR}/release.svg" --style=${STYLE}
 
     fi
 
     ./bin/candybar readme:add-badges ${DIR}
 
-    echo "\nBuild OK!"
+    echo "Build OK!"
 
 else
 
-    echo "\nBuild failed!"
+    echo "Build failed!"
 
 fi

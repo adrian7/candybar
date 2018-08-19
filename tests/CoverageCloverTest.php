@@ -68,7 +68,7 @@ class CoverageCloverTest extends \PHPUnit\Framework\TestCase{
 
         // Global coverage
         $this->assertEquals(
-            8,
+            10,
             self::$clover->coveragePercent('all', TRUE)
         );
 

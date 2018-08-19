@@ -142,7 +142,7 @@ class Util{
     }
 
     /**
-     * Rounds a number down
+     * Rounds a number; Half is rounded down
      *
      * @param integer|float $number
      * @param int $decimals

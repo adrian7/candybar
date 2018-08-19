@@ -118,7 +118,10 @@ class Html implements PresentationInterface {
 
         }
 
-        return FALSE;
+        throw new \InvalidArgumentException(
+            sprintf("Can't find folder %s", $dir)
+        );
+
     }
 
     /**
@@ -138,7 +141,10 @@ class Html implements PresentationInterface {
 
         }
 
-        return FALSE;
+        throw new \InvalidArgumentException(
+            sprintf("Can't find folder %s", $dir)
+        );
+
     }
 
     /**
@@ -193,22 +199,19 @@ class Html implements PresentationInterface {
      *
      * @return bool
      * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     * @throws \InvalidArgumentException
      */
-    public function setStyle($name){
+    public function setStyle( $name ) {
 
-        if(
-            $filename = Util::lookupFile(
-                $name,
-                'css',
-                $this->stylesDirs
-            )
-        )
-            //Style found, replace default styling
-            return
-                copy($filename, $this->getCssPath( self::MAIN_CSS_FILE ) );
+        $filename = Util::findFileOrFail(
+            $name,
+            $this->stylesDirs,
+            'css'
+        );
 
-        //Can't find or can't copy the file
-        throw new \InvalidArgumentException("Can't read style file for {$name} ... .");
+        // Style found, replace default styling
+        return
+            copy($filename, $this->getCssPath( self::MAIN_CSS_FILE ) );
 
     }
 

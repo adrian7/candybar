@@ -18,6 +18,7 @@
     </filter>
     <logging>
         <log type="coverage-clover" target="tests/logs/coverage.xml"/>
+        <log type="coverage-php" target="/tmp/coverage.serialized"/>
         <log type="coverage-html" target="tests/logs" lowUpperBound="30" highLowerBound="70"/>
         <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
         <log type="junit" target="tests/logs/logfile.xml"/>

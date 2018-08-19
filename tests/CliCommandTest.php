@@ -99,10 +99,10 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     }
 
     /**
-     * Run command
-     *
-     * @param string $command
+     * @param $command
      * @param array $args
+     *
+     * @throws Exception
      */
     protected function verbose($command, $args=[]){
         $this->execute($command, $args);
@@ -111,9 +111,11 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     /**
      * Test command and capture output
      *
-     * @param string $command
+     * @param $command
      * @param array $args
      * @param array $expectKeywords
+     *
+     * @throws Exception
      */
     protected function silent($command, $args=[], $expectKeywords=[]){
         $this->execute($command, $args, $expectKeywords);

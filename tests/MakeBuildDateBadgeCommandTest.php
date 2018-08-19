@@ -6,7 +6,7 @@
  */
 
 class MakeBuildDateBadgeCommandTest extends CliCommandTest {
-    
+
     public function testCommand(){
 
         $filename = ( __DIR__ . '/data/builddate-badge.svg' );

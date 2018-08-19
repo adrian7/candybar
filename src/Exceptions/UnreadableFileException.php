@@ -1,13 +1,11 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - Unreadable File Exception
  * @author adrian7
  * @version 1.0
  */
 
 namespace DevLib\Candybar\Exceptions;
-
-use Throwable;
 
 class UnreadableFileException extends \Exception{
 

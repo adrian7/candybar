@@ -143,12 +143,24 @@ class Clover implements StatisticsInterface{
 
             $covered  = ('covered' . ucfirst($metric) );
 
-            if( 0 == $this->{$covered} )
-                // uncovered 100%
+            if( 0 == $this->{$metric} ){
+
+                // ignore metric
+                continue;
+
+            }
+
+            if( 0 == $this->{$covered} ) {
+
+                // covered 0%
                 $values[] = 0;
 
-            elseif( 0 < $this->{$metric} )
-                // Percentage uncovered
+                continue;
+
+            }
+
+            if( 0 < $this->{$metric} )
+                // Division covered
                 $values[] = floatval( $this->{$covered} / $this->{$metric} );
 
         }
