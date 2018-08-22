@@ -14,7 +14,7 @@ class CoverageCloverTest extends \PHPUnit\Framework\TestCase{
 
     public function setUp() {
 
-        $path = ( __DIR__ . '/data/coverage-clover-sample.xml' );
+        $path = ( __DIR__ . '/data/coverage/clover-sample.xml' );
 
         if( empty(self::$clover) )
             self::$clover = new \DevLib\Candybar\Coverage\Stats\Clover($path);
@@ -96,7 +96,7 @@ class CoverageCloverTest extends \PHPUnit\Framework\TestCase{
         $this->expectException(\InvalidArgumentException::class);
 
         new \DevLib\Candybar\Coverage\Stats\Clover(
-            __DIR__ . '/data/coverage-clover-sample-invalid.xml'
+            __DIR__ . '/data/coverage/clover-sample-invalid.xml'
         );
 
     }

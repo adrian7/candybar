@@ -1,7 +1,6 @@
 <?php
 /**
- * Candybar - Configuration file
- * @author adrian7
+ * Candybar - Configuration File
  * @version 1.1
  */
 

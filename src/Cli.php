@@ -20,17 +20,17 @@ class Cli extends Command {
     /**
      * Version
      */
-    const VERSION = '0.2-dev';
+    const VERSION = '0.3-dev';
 
     /**
      * Codename
      */
-    const CODENAME= 'Tootsie Rolls';
+    const CODENAME= 'Grand Bar';
 
     /**
      * Associated release color
      */
-    const RELEASE_COLOR = '441103';
+    const RELEASE_COLOR = 'E92F32';
 
     /**
      * Configured commands
@@ -191,9 +191,18 @@ class Cli extends Command {
 
         if( ! $short ){
 
+            $colors = "\033[46m%1\$s\033[0m\033[43m%1\$s\033[0m\033[45m%1\$s\033[0m";
+            $colors.= "\033[42m%1\$s\033[0m\033[41m%1\$s\033[0m\033[44m%1\$s\033[0m";
+
+            $this->line(
+                sprintf( $colors, "••••••" )
+            );
+
             // Long version info
             $this->line(" Project page:  https://github.com/adrian7/candybar");
             $this->line(" Documentation: https://github.com/adrian7/candybar/wiki");
+
+            $this->eol();
 
         }
 
@@ -260,16 +269,19 @@ class Cli extends Command {
                     return $this->showList();
 
                 case 'version':
+                case '--version':
                     // Display version
                     return $this->showVersion();
 
                 case 'help':
+                case '--help':
                     // Show cli/command help
                     return $this->showUsage(isset($argv[1]) ? $argv[1] : NULL);
 
                 default:
                     // Execute command
                     $this->execute($command, $argv);
+
             }
 
         }

@@ -24,7 +24,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
     public function testParseCloverMetrics(){
 
-        $path = ( __DIR__ . '/data/coverage-clover-sample.xml' );
+        $path = ( __DIR__ . '/data/coverage/clover-sample.xml' );
 
         $all = \DevLib\Candybar\Util::getCloverXmlMetrics($path);
         $one = \DevLib\Candybar\Util::getCloverXmlMetrics($path, 'coveredstatements');

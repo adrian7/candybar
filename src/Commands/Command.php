@@ -176,13 +176,13 @@ abstract class Command implements CommandInterface {
 
         if( count($this->arguments) ){
 
-            //Display list of command arguments
+            // Display list of command arguments
 
             $this->line(" Arguments: " . PHP_EOL);
 
             foreach ($this->arguments as $arg=>$cfg)
                 $this->eol(
-                    "  <{$arg}>    " .
+                    sprintf("%-16s", "  <{$arg}>") .
                     ( is_array($cfg) ? data_get($cfg, 'description') : '' )
                 );
 
@@ -193,12 +193,18 @@ abstract class Command implements CommandInterface {
             //Display list of command options
             $this->line(" Options: " . PHP_EOL);
 
-            foreach ($this->options as $opt=>$cfg)
-                $this->eol(
+            foreach ($this->options as $opt=>$cfg){
+
+                $optstring =
                     "  --{$opt}" .
-                    ( is_bool($this->option($opt) ) ? '' : "=<value>" ) .
+                    ( is_bool($this->option($opt) ) ? '' : "=<value> " );
+
+                $this->eol(
+                    sprintf("%-24s", $optstring ).
                     ( is_array($cfg) ? data_get($cfg, 'description') : '' )
                 );
+
+            }
 
         }
 
@@ -322,11 +328,11 @@ abstract class Command implements CommandInterface {
 
         $commandArguments = array_keys($this->arguments);
 
-        //Parse arguments
+        // Parse arguments
         if( count($arguments) ){
 
             if( count($commandArguments) < count($arguments) )
-                //Invalid number of arguments
+                // Invalid number of arguments
                 throw new \InvalidArgumentException(
                     sprintf(
                         "Command supports only %s arguments, %s given ... .",
@@ -336,6 +342,7 @@ abstract class Command implements CommandInterface {
                 );
 
             foreach ($arguments as $value)
+                // Set arguments
                 $this->setArgument(
                     array_shift($commandArguments),
                     $value
@@ -422,7 +429,7 @@ abstract class Command implements CommandInterface {
      * @param string $message
      */
     public function warn($message){
-        $this->line("(w) {$message}");
+        $this->line("\033[1;33m(w) {$message}\033[0m");
     }
 
     /**
@@ -430,7 +437,7 @@ abstract class Command implements CommandInterface {
      * @param string $message
      */
     public function info($message){
-        $this->line("(i) {$message}");
+        $this->line("\033[1;36m(i) {$message}\033[0m");
     }
 
     /**
@@ -438,29 +445,25 @@ abstract class Command implements CommandInterface {
      * @param string $message
      */
     public function success($message){
-        $this->line("(i) {$message}");
+        $this->line("\033[1;32m(i) {$message}\033[0m");
     }
 
     /**
      * Prints a line
      *
      * @param string $message
-     * @param string $style
      */
-    public function line($message='', $style='default'){
+    public function line($message=''){
         Util::out (PHP_EOL . strval($message) . PHP_EOL, $this->stdout);
-        //TODO add support for style
     }
 
     /**
      * Prints message followed by End-of-line
      *
      * @param string $message
-     * @param string $style
      */
-    public function eol($message='', $style='default'){
+    public function eol($message=''){
         Util::out($message . PHP_EOL, $this->stdout);
-        //TODO add support for style
     }
 
     /**
@@ -474,14 +477,16 @@ abstract class Command implements CommandInterface {
             // Show version if available
             $this->showVersion(TRUE);
 
-        // TODO support for PSR3
         Util::out (
-            PHP_EOL . " Error: " . $e->getMessage() . PHP_EOL . PHP_EOL,
+            sprintf(
+                PHP_EOL . "\033[1;31m%s \033[0m" . PHP_EOL . PHP_EOL,
+                "Error: " . $e->getMessage()
+            ),
             $this->stdout
         );
 
         Util::out(
-            " Stack trace: " . PHP_EOL,
+            sprintf("\033[1;33mStack trace: \033[0m" . PHP_EOL),
             $this->stdout
         );
 

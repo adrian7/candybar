@@ -361,7 +361,7 @@ class Util{
             print $string;
 
         else
-            //Print to file
+            //Print to file // TODO add support for streams
             file_put_contents($channel, $string, FILE_APPEND);
 
     }
@@ -375,4 +375,5 @@ class Util{
         self::$cloverMetrics = NULL;
 
     }
+
 }
