@@ -1,6 +1,6 @@
 <?php
 /**
- * Candybar - [file description]
+ * Candybar - Command class
  * @author adrian7
  * @version 1.0
  */
@@ -77,22 +77,22 @@ abstract class Command implements CommandInterface {
      */
     private function setup(){
 
-        //Setup long options for Getopt
+        // Setup long options for Getopt
 
         if( count($this->options) )
             foreach ($this->options as $name=>$spec){
 
                 if( is_bool( $this->option($name) ) );
-                    //Is boolean option
+                    // Is boolean option
                 else
-                    //Requires an argument
+                    // Requires an argument
                     $name.='=';
 
                 $this->longOpts["{$name}"] = NULL;
 
             }
 
-        //Append --help option
+        // Append --help option
         $this->longOpts["help"] = NULL;
 
     }
@@ -134,7 +134,7 @@ abstract class Command implements CommandInterface {
 
         if( array_key_exists($name, $input) ){
 
-            //Input key available
+            // Input key available
 
             $value = is_array($input[$name]) ?
                 data_get(
@@ -144,7 +144,7 @@ abstract class Command implements CommandInterface {
                 ):
                 $input[$name];
 
-            //Return
+            // Return
             return $value;
 
         }
@@ -164,7 +164,7 @@ abstract class Command implements CommandInterface {
         $script  = basename( array_shift($argv) );
 
         if( $command = array_shift($argv) and 'help' == $command )
-            //Querying help about a command
+            // Querying help about a command
             $command = array_shift($argv);
 
         $hasArguments = count($this->arguments) ? '{arguments}' : '';
@@ -190,7 +190,7 @@ abstract class Command implements CommandInterface {
 
         if( count($this->options) ){
 
-            //Display list of command options
+            // Display list of command options
             $this->line(" Options: " . PHP_EOL);
 
             foreach ($this->options as $opt=>$cfg){
@@ -245,17 +245,23 @@ abstract class Command implements CommandInterface {
      *
      * @param array $options
      * @param array $longOptions
+     * @return void
      */
     public function parseOptions($options=[], $longOptions=[]){
 
         $commandOptions = array_keys($this->options);
         $inputOptions   = [];
 
-        if( isset($options[0][0]) and '--help' == $options[0][0] )
-            //Show help
-            return $this->showHelp();
+        if( isset($options[0][0]) and '--help' == $options[0][0] ) {
 
-        //Parse given options
+            // Show help
+            $this->showHelp();
+
+            return;
+
+        }
+
+        // Parse given options
         if( count($options) )
 
             foreach ($options as $option) {
@@ -264,22 +270,22 @@ abstract class Command implements CommandInterface {
 
                 $inputOptions[] = $name;
 
-                //Extract option name
+                // Extract option name
                 $name = trim($name, '-');
 
-                //Check for chained empty options
+                // Check for chained empty options e.g. --opt --chained-opt
                 $cleanValue              = trim(trim($value), '-');
                 $valueOverriddenByOption = (
                     strpos($value, '--') !== FALSE
                     and (
                         in_array($cleanValue, $longOptions)
-                        or
+                            or
                         in_array( "{$cleanValue}=", $longOptions)
                     )
                 );
 
                 if( $valueOverriddenByOption )
-                    //An invalid chain of options, e.g. --opt= --opt
+                    // An invalid chain of options, e.g. --opt= --opt
                     throw new \InvalidArgumentException(
                         sprintf("Option %s requires a value... .", "--{$name}")
                     );
@@ -291,25 +297,25 @@ abstract class Command implements CommandInterface {
                             and
                         array_key_exists("{$name}=", $this->longOpts)
                     )
-                        //The option requires a value
+                        // The option requires a value
                         throw new \InvalidArgumentException(
                             sprintf("Option %s requires a value... .", "--{$name}")
                         );
 
                     else
-                        //Set option
+                        // Set option
                         $this->setOption($name, empty($value) ? TRUE : $value );
 
                 }
                 else
-                    //Unrecognized option
+                    // Unrecognized option
                     throw new \InvalidArgumentException(
                         sprintf("Unrecognized option %s ... .", "--{$name}")
                     );
 
             }
 
-        //Check the required options
+        // Check the required options
         foreach ($this->options as $name=>$spec)
             if(
                 ( isset($spec['required']) and $spec['required'] )
@@ -335,8 +341,9 @@ abstract class Command implements CommandInterface {
                 // Invalid number of arguments
                 throw new \InvalidArgumentException(
                     sprintf(
-                        "Command supports only %s arguments, %s given ... .",
+                        "Command supports only %s argument%s, %s given ... .",
                         count($commandArguments),
+                        ( count($commandArguments) > 1 ? 's' : ''),
                         count($arguments)
                     )
                 );
@@ -350,7 +357,22 @@ abstract class Command implements CommandInterface {
 
         }
 
-        //TODO check the required arguments
+        // Check required arguments
+        $required = 0;
+
+        foreach ($this->arguments as $name=>$spec)
+            if( isset($spec['required']) and $spec['required'] )
+                $required++;
+
+        if( $required > count($arguments) )
+            throw new \InvalidArgumentException(
+                sprintf(
+                    "Command requires %s argument%s, %s given.",
+                    $required,
+                    ( $required > 1 ? 's' : ''),
+                    count($arguments)
+                )
+            );
 
     }
 

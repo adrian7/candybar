@@ -87,8 +87,22 @@ class PutBadgesToReadmeCommandTest extends CliCommandTest {
 
     }
 
+    /**
+     * @throws Exception
+     */
     public function testWarnsWhenNoBadgesFoundInTemplate(){
-        // TODO...
+
+        $template = ( __DIR__ . '/data/empty.txt' );
+        $output   = ( __DIR__ . '/data/empty-output.txt' );
+
+        $this->silent('readme:add-badges', [
+            self::$folder,
+            "--template={$template}",
+            "--output={$output}"
+        ], ["add some compatible tags"]);
+
+        @unlink($output);
+
     }
 
     /**

@@ -17,13 +17,13 @@ class ExampleCommand extends Command{
      */
     protected $arguments = [
 
-        //An argument with default value and description
+        // An argument with default value and description
         'one' => [
             'default'     => 'value',
             'description' => 'Just a placeholder argument'
         ],
 
-        //An argument without description
+        // An argument without description
         'two' => 'defaultValue'
 
     ];
@@ -34,22 +34,22 @@ class ExampleCommand extends Command{
      */
     protected $options = [
 
-        //Required option
+        // Required option
         'account' => [
             'required'      => TRUE,
             'description'   => 'Account option is required'
         ],
 
-        //Option with default value and description
+        // Option with default value and description
         'key' => [
             'default'     => NULL,
             'description' => 'The option description'
         ],
 
-        //Option without a description
+        // Option without a description
         'secret' => NULL,
 
-        //Boolean option (switch)
+        // Boolean option (switch)
         'erase' => FALSE
 
     ];

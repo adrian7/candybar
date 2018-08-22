@@ -199,8 +199,8 @@ class Cli extends Command {
             );
 
             // Long version info
-            $this->line(" Project page:  https://github.com/adrian7/candybar");
-            $this->line(" Documentation: https://github.com/adrian7/candybar/wiki");
+            $this->line(" 🏠 Project page:  https://github.com/adrian7/candybar");
+            $this->line(" 📚 Documentation: https://github.com/adrian7/candybar/wiki");
 
             $this->eol();
 
@@ -280,12 +280,13 @@ class Cli extends Command {
 
                 default:
                     // Execute command
-                    $this->execute($command, $argv);
+                    return $this->execute($command, $argv);
 
             }
 
         }
 
+        // Display usage
         return $this->showUsage();
 
     }
