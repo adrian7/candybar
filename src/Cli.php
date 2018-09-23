@@ -11,9 +11,9 @@ use DevLib\Candybar\Commands\Command;
 use DevLib\Candybar\Commands\CommandInterface;
 use DevLib\Candybar\Exceptions\UnknownCommandException;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use DevLib\Candybar\Exceptions\InvalidConfigurationException;
 use DevLib\Candybar\Exceptions\IncompleteInstallationException;
-use Symfony\Component\Filesystem\Exception\IOException;
 
 class Cli extends Command {
 

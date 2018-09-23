@@ -33,6 +33,15 @@ class CliTest extends CliCommandTest {
         // Fire command
         \DevLib\Candybar\Cli::main();
 
+        // Without any command we should see the the help
+        $_SERVER['argv'] = [ 0 => "candybar" ];
+
+        // Can we see the string in the output?
+        $this->expectOutputRegex( "/Usage: candybar/");
+
+        // Fire command
+        \DevLib\Candybar\Cli::main();
+
     }
 
     public function testInitCommand(){
@@ -194,7 +203,6 @@ class CliTest extends CliCommandTest {
 
     }
 
-
     public function testThrowsInvalidConfigurationException(){
 
         //Expecting exception
@@ -272,4 +280,25 @@ class CliTest extends CliCommandTest {
 
     }
 
+    public function testExistsWithErrorWhenStdoutNotSupported(){
+
+        $this->expectException( InvalidArgumentException::class );
+
+        new DevLib\Candybar\Cli( NULL );
+
+    }
+
+    public function testShowsHelpWhenArrayOfOptionsHasMinusHelp(){
+
+        $this->expectOutputRegex( "/Usage:/");
+
+        $cli = new DevLib\Candybar\Cli();
+
+        $cli->parseOptions([['--help']]);
+
+    }
+
+    public function testShowsSuccessMessage(){
+        // TODO
+    }
 }

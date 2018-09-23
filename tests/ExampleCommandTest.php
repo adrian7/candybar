@@ -70,5 +70,4 @@ class ExampleCommandTest extends CliCommandTest {
         $command->argument('unspecified');
 
     }
-
 }

@@ -241,7 +241,7 @@ abstract class Command implements CommandInterface {
     }
 
     /**
-     * Parse command option; All options are treated as optional
+     * Parse command option;
      *
      * @param array $options
      * @param array $longOptions
@@ -262,67 +262,74 @@ abstract class Command implements CommandInterface {
         }
 
         // Parse given options
-        if( count($options) )
+        if( count($options) ) {
 
-            foreach ($options as $option) {
+            foreach ( $options as $option ) {
 
-                list($name, $value) = $option;
+                list( $name, $value ) = $option;
 
                 $inputOptions[] = $name;
 
                 // Extract option name
-                $name = trim($name, '-');
+                $name = trim( $name, '-' );
 
                 // Check for chained empty options e.g. --opt --chained-opt
-                $cleanValue              = trim(trim($value), '-');
+                $cleanValue              = trim( trim( $value ), '-' );
                 $valueOverriddenByOption = (
-                    strpos($value, '--') !== FALSE
+                    strpos( $value, '--' ) !== FALSE
                     and (
-                        in_array($cleanValue, $longOptions)
-                            or
-                        in_array( "{$cleanValue}=", $longOptions)
+                        in_array( $cleanValue, $longOptions )
+                        or
+                        in_array( "{$cleanValue}=", $longOptions )
                     )
                 );
 
-                if( $valueOverriddenByOption )
-                    // An invalid chain of options, e.g. --opt= --opt
+                if ( $valueOverriddenByOption ) // An invalid chain of options, e.g. --opt= --opt
+                {
                     throw new \InvalidArgumentException(
-                        sprintf("Option %s requires a value... .", "--{$name}")
+                        sprintf( "Option %s requires a value... .", "--{$name}" )
                     );
-
-                if( in_array($name, $commandOptions) ){
-
-                    if(
-                        empty($value)
-                            and
-                        array_key_exists("{$name}=", $this->longOpts)
-                    )
-                        // The option requires a value
-                        throw new \InvalidArgumentException(
-                            sprintf("Option %s requires a value... .", "--{$name}")
-                        );
-
-                    else
-                        // Set option
-                        $this->setOption($name, empty($value) ? TRUE : $value );
-
                 }
-                else
-                    // Unrecognized option
+
+                if ( in_array( $name, $commandOptions ) ) {
+
+                    if (
+                        empty( $value )
+                        and
+                        array_key_exists( "{$name}=", $this->longOpts )
+                    ) // The option requires a value
+                    {
+                        throw new \InvalidArgumentException(
+                            sprintf( "Option %s requires a value... .", "--{$name}" )
+                        );
+                    } else // Set option
+                    {
+                        $this->setOption( $name, empty( $value ) ? TRUE : $value );
+                    }
+
+                } else // Unrecognized option
+                {
                     throw new \InvalidArgumentException(
-                        sprintf("Unrecognized option %s ... .", "--{$name}")
+                        sprintf( "Unrecognized option %s ... .", "--{$name}" )
                     );
+                }
 
             }
 
+        }
+
         // Check the required options
-        foreach ($this->options as $name=>$spec)
-            if(
-                ( isset($spec['required']) and $spec['required'] )
+        foreach ($this->options as $name=>$spec) {
+
+            if (
+                ( isset( $spec['required'] ) and $spec['required'] )
                     and
-                ! in_array($name, $inputOptions)
-            )
-                throw new \InvalidArgumentException("Option --{$name} is required... .");
+                ! in_array( $name, $inputOptions )
+            ) {
+                throw new \InvalidArgumentException( "Option --{$name} is required... ." );
+            }
+
+        }
 
     }
 
@@ -519,6 +526,7 @@ abstract class Command implements CommandInterface {
 
     /**
      * Command handle
+     * @codeCoverageIgnore
      */
     public function handle(){
         // TODO add better handle with support

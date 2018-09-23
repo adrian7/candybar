@@ -59,23 +59,24 @@ class ExampleCommand extends Command{
      */
     public function handle() {
 
-        $this->line(" Hello world! I'm an example command.");
+        $this->info("Hello everyone! I'm an example command.");
+
         $this->eol(
             sprintf(
-                " You selected the '%s' account" . PHP_EOL,
+                "You selected the '%s' account" . PHP_EOL,
                 $this->option('account')
             )
         );
 
         //Display arguments
-        $this->eol(" Arguments: ");
+        $this->eol("Arguments: ");
 
         foreach (array_keys($this->arguments) as $arg)
             if( $v = $this->argument($arg) )
                 $this->eol("  - {$arg}=" . strval($v) );
 
         //Display options
-        $this->line(" Options");
+        $this->line("Options");
 
         foreach (array_keys($this->options) as $opt)
             if( $v = $this->option($opt) )
