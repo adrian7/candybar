@@ -9,8 +9,8 @@ namespace DevLib\Candybar;
 
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOException;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
 
 class Util{
@@ -373,6 +373,28 @@ class Util{
 
         self::$loggingCfg    = NULL;
         self::$cloverMetrics = NULL;
+
+    }
+
+    /**
+     * @param array $paths
+     *
+     * @return bool|string
+     * @throws UnreadableFileException
+     */
+    public static function findPhpUnitConfigFile($paths=[]){
+
+        $path = self::lookupFile( 'phpunit', 'xml', $paths ) ?:
+            self::lookupFile( 'phpunit', 'xml.dist', $paths ) ;
+
+        if( $path )
+            return $path;
+
+        throw new UnreadableFileException(
+            "Can't find phpunit configuration file. 
+            Please make sure there is a phpuni.xml or phpuni.xml.dist 
+            in the root of your project"
+        );
 
     }
 

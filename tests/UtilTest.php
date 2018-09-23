@@ -7,6 +7,17 @@
 
 class UtilTest extends \PHPUnit\Framework\TestCase{
 
+    protected static $backupCwd = NULL;
+
+    public static function tearDownAfterClass() {
+
+        if( self::$backupCwd and self::$backupCwd != getcwd() )
+            chdir( self::$backupCwd );
+
+        parent::tearDownAfterClass();
+
+    }
+
     public function testParseLoggingConfig(){
 
         $path = ( __DIR__ . '/data/phpunit-sample.xml' );
@@ -181,6 +192,20 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
     /**
      * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
      */
+    public function testGetPhpUnitConfigFile(){
+
+        $this->assertTrue(
+            in_array(
+                basename( \DevLib\Candybar\Util::findPhpUnitConfigFile() ),
+                ['phpunit.xml', 'phpunit.xml.dist']
+            )
+        );
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
     public function testFalseWhenFileNotFound(){
 
         $result = \DevLib\Candybar\Util::lookupFile(
@@ -209,6 +234,21 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
         $this->expectException(\InvalidArgumentException::class);
 
         \DevLib\Candybar\Util::lookupFile('somefile', '', [new stdClass()]);
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFailsIfPhpUnitConfigFileNotFound(){
+
+        $this->expectException( \DevLib\Candybar\Exceptions\UnreadableFileException::class );
+
+        self::$backupCwd = getcwd();
+
+        chdir( __DIR__ . '/data/folder' );
+
+        \DevLib\Candybar\Util::findPhpUnitConfigFile();
 
     }
 

@@ -27,7 +27,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     public function tearDown() {
 
         // Cleanup output after test
-        if( file_get_contents(self::$output) )
+        if( file_exists( self::$output ) )
             file_put_contents(self::$output, '');
 
         if( getcwd() != self::$backupCWD )

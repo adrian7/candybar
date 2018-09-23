@@ -121,7 +121,7 @@ class CoveragePercentBadgeCommand extends Command{
 
             //Retrieve clover config from phpunit
             $config   = Util::getLoggingConfig(
-                Util::findFileOrFail('phpunit.xml'), 'coverage-clover'
+                Util::findPhpUnitConfigFile(), 'coverage-clover'
             );
 
             $cloverxml = isset($config['target']) ? $config['target'] : NULL;
