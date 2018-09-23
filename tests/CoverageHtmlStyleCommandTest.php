@@ -13,7 +13,7 @@ class CoverageHtmlStyleCommandTest extends CliCommandTest {
         $original = ( __DIR__ . '/data/html/.css/style.css' );
         $backup   = ( __DIR__ . '/data/html/.css/style.css.bk' );
 
-        //Backup original file
+        // Backup original file
         if( copy($original, $backup) );
         else
             $this->fail("Could not copy {$original} to {$backup} ... .");
@@ -39,13 +39,13 @@ class CoverageHtmlStyleCommandTest extends CliCommandTest {
 
     public function testThrowsException(){
 
-        //Expects exception to be thrown
-        $this->expectException(InvalidArgumentException::class);
+        // Expects exception to be thrown
+        $this->expectException(\DevLib\Candybar\Exceptions\UnreadableFileException::class);
 
-        //Run the command
-        $this->verbose( 'coverage:badge', [
-            '--style=unknown'
-        ]);
+        chdir(__DIR__ . '/data/invalid-phpunit-config');
+
+        // Run the command
+        $this->silent( 'coverage:style');
 
     }
 

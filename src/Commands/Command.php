@@ -1,6 +1,6 @@
 <?php
 /**
- * Candybar - [file description]
+ * Candybar - Command class
  * @author adrian7
  * @version 1.0
  */
@@ -27,12 +27,6 @@ abstract class Command implements CommandInterface {
      * @var string
      */
     protected $stdout = 'standard';
-
-    /**
-     * List of cli options
-     * @var array
-     */
-    private $opts = [];
 
     /**
      * Command long options
@@ -66,7 +60,9 @@ abstract class Command implements CommandInterface {
     public function __construct($stdout=Util::STANDARD_OUTPUT) {
 
         if( empty($stdout) )
-            throw new \InvalidArgumentException("Stdout should point to a file or `standard`... .");
+            throw new \InvalidArgumentException(
+                "Stdout should point to a file or `standard`... ."
+            );
 
         //Set output channel
         $this->stdout = $stdout;
@@ -81,22 +77,22 @@ abstract class Command implements CommandInterface {
      */
     private function setup(){
 
-        //Setup long options for Getopt
+        // Setup long options for Getopt
 
         if( count($this->options) )
             foreach ($this->options as $name=>$spec){
 
                 if( is_bool( $this->option($name) ) );
-                    //Is boolean option
+                    // Is boolean option
                 else
-                    //Requires an argument
+                    // Requires an argument
                     $name.='=';
 
                 $this->longOpts["{$name}"] = NULL;
 
             }
 
-        //Append --help option
+        // Append --help option
         $this->longOpts["help"] = NULL;
 
     }
@@ -138,7 +134,7 @@ abstract class Command implements CommandInterface {
 
         if( array_key_exists($name, $input) ){
 
-            //Input key available
+            // Input key available
 
             $value = is_array($input[$name]) ?
                 data_get(
@@ -148,7 +144,7 @@ abstract class Command implements CommandInterface {
                 ):
                 $input[$name];
 
-            //Return
+            // Return
             return $value;
 
         }
@@ -165,11 +161,10 @@ abstract class Command implements CommandInterface {
     public function showHelp($exit=TRUE) {
 
         $argv    = $_SERVER['argv'];
-
         $script  = basename( array_shift($argv) );
 
         if( $command = array_shift($argv) and 'help' == $command )
-            //Querying help about a command
+            // Querying help about a command
             $command = array_shift($argv);
 
         $hasArguments = count($this->arguments) ? '{arguments}' : '';
@@ -181,13 +176,13 @@ abstract class Command implements CommandInterface {
 
         if( count($this->arguments) ){
 
-            //Display list of command arguments
+            // Display list of command arguments
 
             $this->line(" Arguments: " . PHP_EOL);
 
             foreach ($this->arguments as $arg=>$cfg)
                 $this->eol(
-                    "  <{$arg}>    " .
+                    sprintf("%-16s", "  <{$arg}>") .
                     ( is_array($cfg) ? data_get($cfg, 'description') : '' )
                 );
 
@@ -195,15 +190,21 @@ abstract class Command implements CommandInterface {
 
         if( count($this->options) ){
 
-            //Display list of command options
+            // Display list of command options
             $this->line(" Options: " . PHP_EOL);
 
-            foreach ($this->options as $opt=>$cfg)
-                $this->eol(
+            foreach ($this->options as $opt=>$cfg){
+
+                $optstring =
                     "  --{$opt}" .
-                    ( is_bool($this->option($opt) ) ? '' : "=<value>" ) .
+                    ( is_bool($this->option($opt) ) ? '' : "=<value> " );
+
+                $this->eol(
+                    sprintf("%-24s", $optstring ).
                     ( is_array($cfg) ? data_get($cfg, 'description') : '' )
                 );
+
+            }
 
         }
 
@@ -226,7 +227,7 @@ abstract class Command implements CommandInterface {
 
         $longOptions = \array_keys($this->longOpts);
 
-        //Handle options
+        //Handle options (this will throw an exception for missing options values)
         list($options, $arguments) = Getopt::getopt(
             $argv,
             '',
@@ -240,82 +241,103 @@ abstract class Command implements CommandInterface {
     }
 
     /**
-     * Parse command option; All options are treated as optional
+     * Parse command option;
      *
      * @param array $options
      * @param array $longOptions
+     * @return void
      */
     public function parseOptions($options=[], $longOptions=[]){
 
         $commandOptions = array_keys($this->options);
         $inputOptions   = [];
 
-        if( isset($options[0][0]) and '--help' == $options[0][0] )
-            //Show help
-            return $this->showHelp();
+        if( isset($options[0][0]) and '--help' == $options[0][0] ) {
 
-        //Parse given options
-        if( count($options) )
+            // Show help
+            $this->showHelp();
 
-            foreach ($options as $option) {
+            return;
 
-                list($name, $value) = $option;
+        }
+
+        // Parse given options
+        if( count($options) ) {
+
+            foreach ( $options as $option ) {
+
+                list( $name, $value ) = $option;
 
                 $inputOptions[] = $name;
 
-                //Extract option name
-                $name = trim($name, '-');
+                // Extract option name
+                $name = trim( $name, '-' );
 
-                //Check for chained empty options
-                $cleanValue              = trim(trim($value), '-');
+                // Check for chained empty options e.g. --opt --chained-opt
+                $cleanValue              = trim( trim( $value ), '-' );
                 $valueOverriddenByOption = (
-                    strpos($value, '--') !== FALSE
+                    strpos( $value, '--' ) !== FALSE
                     and (
-                        in_array($cleanValue, $longOptions)
+                        in_array( $cleanValue, $longOptions )
                         or
-                        in_array( "{$cleanValue}=", $longOptions)
+                        in_array( "{$cleanValue}=", $longOptions )
                     )
                 );
 
-                if( $valueOverriddenByOption )
-                    //An invalid chain of options, e.g. --opt= --opt
+                if ( $valueOverriddenByOption ) // An invalid chain of options, e.g. --opt= --opt
+                {
                     throw new \InvalidArgumentException(
-                        sprintf("Option %s requires a value... .", "--{$name}")
+                        sprintf( "Option %s requires a value... .", "--{$name}" )
                     );
+                }
 
-                if( in_array($name, $commandOptions) ){
+                if ( in_array( $name, $commandOptions ) ) {
 
-                    if(
-                        empty($value)
+                    if (
+                        empty( $value )
                             and
-                        array_key_exists("{$name}=", $this->longOpts)
-                    )
-                        //The option requires a value
-                        throw new \InvalidArgumentException(
-                            sprintf("Option %s requires a value... .", "--{$name}")
-                        );
+                        array_key_exists( "{$name}=", $this->longOpts )
+                    ) // The option requires a value
+                    {
 
-                    else
-                        //Set option
-                        $this->setOption($name, empty($value) ? TRUE : $value );
+                        // @codeCoverageIgnoreStart
+                        throw new \InvalidArgumentException(
+                            sprintf( "Option %s requires a value... .", "--{$name}" )
+                        );
+                        // @codeCoverageIgnoreEnd
+
+                    } else // Set option
+                    {
+                        $this->setOption( $name, empty( $value ) ? TRUE : $value );
+                    }
+
+                } else // Unrecognized option
+                {
+
+                    // @codeCoverageIgnoreStart
+                    throw new \InvalidArgumentException(
+                        sprintf( "Unrecognized option %s ... .", "--{$name}" )
+                    );
+                    // @codeCoverageIgnoreEnd
 
                 }
-                else
-                    //Unrecognized option
-                    throw new \InvalidArgumentException(
-                        sprintf("Unrecognized option %s ... .", "--{$name}")
-                    );
 
             }
 
-        //Check the required options
-        foreach ($this->options as $name=>$spec)
-            if(
-                ( isset($spec['required']) and $spec['required'] )
+        }
+
+        // Check the required options
+        foreach ($this->options as $name=>$spec) {
+
+            if (
+                ( isset( $spec['required'] ) and $spec['required'] )
                     and
-                ! in_array($name, $inputOptions)
-            )
-                throw new \InvalidArgumentException("Option --{$name} is required... .");
+                ! in_array( $name, $inputOptions )
+            ) {
+                throw new \InvalidArgumentException( "Option --{$name} is required... ." );
+            }
+
+        }
 
     }
 
@@ -327,20 +349,22 @@ abstract class Command implements CommandInterface {
 
         $commandArguments = array_keys($this->arguments);
 
-        //Parse arguments
+        // Parse arguments
         if( count($arguments) ){
 
             if( count($commandArguments) < count($arguments) )
-                //Invalid number of arguments
+                // Invalid number of arguments
                 throw new \InvalidArgumentException(
                     sprintf(
-                        "Command supports only %s arguments, %s given ... .",
+                        "Command supports only %s argument%s, %s given ... .",
                         count($commandArguments),
+                        ( count($commandArguments) > 1 ? 's' : ''),
                         count($arguments)
                     )
                 );
 
             foreach ($arguments as $value)
+                // Set arguments
                 $this->setArgument(
                     array_shift($commandArguments),
                     $value
@@ -348,23 +372,38 @@ abstract class Command implements CommandInterface {
 
         }
 
-        //TODO check the required arguments
+        // Check required arguments
+        $required = 0;
+
+        foreach ($this->arguments as $name=>$spec)
+            if( isset($spec['required']) and $spec['required'] )
+                $required++;
+
+        if( $required > count($arguments) )
+            throw new \InvalidArgumentException(
+                sprintf(
+                    "Command requires %s argument%s, %s given.",
+                    $required,
+                    ( $required > 1 ? 's' : ''),
+                    count($arguments)
+                )
+            );
 
     }
 
     /**
      * Command run
      * @param array $argv
-     * @param bool $exit
      *
      * @return int|void
+     * @throws \Exception
      */
-    public function run(array $argv){
+    public function run(array $argv) {
 
-        //Parse input
+        // Parse input
         $this->parseInput($argv);
 
-        //Handle command
+        // Handle command
         $this->handle();
 
     }
@@ -427,7 +466,7 @@ abstract class Command implements CommandInterface {
      * @param string $message
      */
     public function warn($message){
-        $this->line("(w) {$message}");
+        $this->line("\033[1;33m(w) {$message}\033[0m");
     }
 
     /**
@@ -435,7 +474,7 @@ abstract class Command implements CommandInterface {
      * @param string $message
      */
     public function info($message){
-        $this->line("(i) {$message}");
+        $this->line("\033[1;36m(i) {$message}\033[0m");
     }
 
     /**
@@ -443,29 +482,25 @@ abstract class Command implements CommandInterface {
      * @param string $message
      */
     public function success($message){
-        $this->line("(i) {$message}");
+        $this->line("\033[1;32m(i) {$message}\033[0m");
     }
 
     /**
      * Prints a line
      *
      * @param string $message
-     * @param string $style
      */
-    public function line($message='', $style='default'){
+    public function line($message=''){
         Util::out (PHP_EOL . strval($message) . PHP_EOL, $this->stdout);
-        //TODO add support for style
     }
 
     /**
      * Prints message followed by End-of-line
      *
      * @param string $message
-     * @param string $style
      */
-    public function eol($message='', $style='default'){
+    public function eol($message=''){
         Util::out($message . PHP_EOL, $this->stdout);
-        //TODO add support for style
     }
 
     /**
@@ -476,29 +511,33 @@ abstract class Command implements CommandInterface {
     public function exitWithError(\Exception $e) {
 
         if( method_exists($this, 'showVersion') )
-            //Show version if available
+            // Show version if available
             $this->showVersion(TRUE);
 
-        //TODO support for PSR3
         Util::out (
-            PHP_EOL . " Error: " . $e->getMessage() . PHP_EOL . PHP_EOL,
-            $this->stdout
-        );
-        Util::out(
-            " Stack trace: " . PHP_EOL,
+            sprintf(
+                PHP_EOL . "\033[1;31m%s \033[0m" . PHP_EOL . PHP_EOL,
+                "Error: " . $e->getMessage()
+            ),
             $this->stdout
         );
 
-        //Throw error
+        Util::out(
+            sprintf("\033[1;33mStack trace: \033[0m" . PHP_EOL),
+            $this->stdout
+        );
+
+        // Throw error
         throw $e;
 
     }
 
     /**
      * Command handle
+     * @codeCoverageIgnore
      */
     public function handle(){
-        //TODO add better handle with support
+        // TODO add better handle with support
         Util::out(
             "This command doesn't implement a handle function... .",
             $this->stdout

@@ -1,5 +1,8 @@
+.DS_Store
+.idea
 .env
 /composer.lock
 /vendor
 /phpunit.xml
 /docker-compose.yml
+tests/data/cli.out

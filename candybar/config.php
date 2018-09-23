@@ -1,13 +1,12 @@
 <?php
 /**
- * Candybar - Configuration file
- * @author adrian7
+ * Candybar - Configuration File
  * @version 1.1
  */
 
 return [
 
-    //Register here available commands (candies):
+    // Register here available commands (candies):
     'bar' => [
 
         'example:command' =>

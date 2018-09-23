@@ -7,6 +7,17 @@
 
 class UtilTest extends \PHPUnit\Framework\TestCase{
 
+    protected static $backupCwd = NULL;
+
+    public static function tearDownAfterClass() {
+
+        if( self::$backupCwd and self::$backupCwd != getcwd() )
+            chdir( self::$backupCwd );
+
+        parent::tearDownAfterClass();
+
+    }
+
     public function testParseLoggingConfig(){
 
         $path = ( __DIR__ . '/data/phpunit-sample.xml' );
@@ -24,7 +35,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
     public function testParseCloverMetrics(){
 
-        $path = ( __DIR__ . '/data/coverage-clover-sample.xml' );
+        $path = ( __DIR__ . '/data/coverage/clover-sample.xml' );
 
         $all = \DevLib\Candybar\Util::getCloverXmlMetrics($path);
         $one = \DevLib\Candybar\Util::getCloverXmlMetrics($path, 'coveredstatements');
@@ -144,6 +155,30 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    public function testRound(){
+
+        $this->assertEquals(
+            12.861,
+            \DevLib\Candybar\Util::round(12.86056, 3)
+        );
+
+        $this->assertEquals(
+            9.77,
+            \DevLib\Candybar\Util::round(9.76537, 2)
+        );
+
+        $this->assertEquals(
+            53.1,
+            \DevLib\Candybar\Util::round(53.1234, 1)
+        );
+
+        $this->assertEquals(
+            10,
+            \DevLib\Candybar\Util::round(10.2525, 0)
+        );
+
+    }
+
     public function testGetSizeHuman(){
 
         $file   = ( __DIR__ . '/data/folder/1024bytes' );
@@ -151,6 +186,69 @@ class UtilTest extends \PHPUnit\Framework\TestCase{
 
         $this->assertEquals('1.0K', \DevLib\Candybar\Util::getSizeHuman($file));
         $this->assertEquals('2.0K', \DevLib\Candybar\Util::getSizeHuman($folder));
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testGetPhpUnitConfigFile(){
+
+        $this->assertTrue(
+            in_array(
+                basename( \DevLib\Candybar\Util::findPhpUnitConfigFile() ),
+                ['phpunit.xml', 'phpunit.xml.dist']
+            )
+        );
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFalseWhenFileNotFound(){
+
+        $result = \DevLib\Candybar\Util::lookupFile(
+            '/path/to/somefile',
+            '.ext',
+            ['/there']
+        );
+
+        $this->assertFalse($result);
+
+    }
+
+    public function testFailsToReadMissingXml(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        \DevLib\Candybar\Util::parseXml('/very/obnoxious/path.xml', []);
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFailsOnInvalidLookupPaths(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        \DevLib\Candybar\Util::lookupFile('somefile', '', [new stdClass()]);
+
+    }
+
+    /**
+     * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     */
+    public function testFailsIfPhpUnitConfigFileNotFound(){
+
+        $this->expectException( \DevLib\Candybar\Exceptions\UnreadableFileException::class );
+
+        self::$backupCwd = getcwd();
+
+        chdir( __DIR__ . '/data/folder' );
+
+        \DevLib\Candybar\Util::findPhpUnitConfigFile();
 
     }
 

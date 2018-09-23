@@ -61,6 +61,64 @@ class ExampleCommandTest extends CliCommandTest {
 
     }
 
+    public function testThrowsExceptionForRequiredOptionWhenChained(){
+
+        //Expects exception to be thrown
+        $this->expectException(InvalidArgumentException::class);
+
+        $_SERVER['argv'] = $args = [
+            'bin/executable',
+            'example:command',
+            '--account= --secret'
+        ];
+
+        // Handle arguments
+        self::$runner->run($args);
+
+    }
+
+    public function testThrowsExceptionForOptionValueMissing(){
+
+        //Expects exception to be thrown
+        $this->expectException(\PHPUnit\Framework\Exception::class);
+
+        $_SERVER['argv'] = $args = [
+            'bin/executable',
+            'example:command',
+            '--account='
+        ];
+
+        // Handle arguments
+        self::$runner->run($args);
+
+    }
+
+    public function testThrowsExceptionForUnrecognizedOption(){
+
+        //Expects exception to be thrown
+        $this->expectException( \PHPUnit\Framework\Exception::class );
+
+        $this->verbose('example:command', [
+            '--account=test',
+            '--unrecognized'
+        ]);
+
+    }
+
+    public function testThrowsExceptionForTooManyArguments(){
+
+        //Expects exception to be thrown
+        $this->expectException( InvalidArgumentException::class );
+
+        $this->verbose('example:command', [
+            'argone',
+            'argtwo',
+            'argthree',
+            '--account=test'
+        ]);
+
+    }
+
     public function testThrowsExceptionForUnspecifiedInput(){
 
         //Expects exception to be thrown

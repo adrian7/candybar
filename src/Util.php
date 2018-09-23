@@ -7,10 +7,11 @@
 
 namespace DevLib\Candybar;
 
-use DevLib\Candybar\Exceptions\UnreadableFileException;
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOException;
+use DevLib\Candybar\Exceptions\UnreadableFileException;
 
 class Util{
 
@@ -61,7 +62,7 @@ class Util{
         $paths= is_array($paths) ? $paths : [$paths];
 
         if( empty($paths) )
-            //Defaults to current directory
+            // Defaults to current directory
             $paths = [ getcwd() ];
 
         if( ! is_string($paths[0]) )
@@ -71,16 +72,16 @@ class Util{
 
             $ext = ".{$ext}";
 
-            //Check if the file has .ext
+            // Check if the file has .ext
 
             if( $ext == mb_substr( mb_strtolower($name), -( mb_strlen($ext) ) ) );
             else
-                //Add extension
+                // Add extension
                 $name.= $ext;
 
         }
 
-        //Lookup in paths
+        // Lookup in paths
         foreach ($paths as $path )
             if(
                 is_dir($path)
@@ -91,12 +92,12 @@ class Util{
             )
                 return realpath($file);
 
-        //Lookup in CWD
+        // Lookup in CWD
         if( $cwd and is_file($name) )
             return realpath($name);
 
         if( $fail )
-            //File not found
+            // File not found
             throw new UnreadableFileException(
                 $name,
                 ( $cwd ? array_merge($paths, [getcwd()] ) : $paths )
@@ -118,8 +119,7 @@ class Util{
      */
     public static function findFileOrFail($name, $paths=[], $ext=FALSE, $cwd=TRUE){
 
-        if( $path = self::lookupFile($name, $ext, $paths, $cwd, TRUE) )
-            return $path;
+        return self::lookupFile($name, $ext, $paths, $cwd, TRUE);
 
     }
 
@@ -142,7 +142,7 @@ class Util{
     }
 
     /**
-     * Rounds a number down
+     * Rounds a number; Half is rounded down
      *
      * @param integer|float $number
      * @param int $decimals
@@ -168,7 +168,7 @@ class Util{
 
         if( empty(self::$loggingCfg) ){
 
-            //Initialize config
+            // Initialize config
             $cfg = self::parseXml($path, [
                 'logging' => [ 'uses' => 'logging.log[::type>type,::target>target]' ]
             ]);
@@ -180,10 +180,10 @@ class Util{
         }
 
         if( empty($type) )
-            //Return all available types
+            // Return all available types
             return self::$loggingCfg;
 
-        //Filter array for type
+        // Filter array for type
         return array_first(self::$loggingCfg, function ($value, $key) use($type){
 
             return
@@ -205,7 +205,7 @@ class Util{
 
         if( empty(self::$cloverMetrics) ){
 
-            //List of metrics to extract
+            // List of metrics to extract
             $metrics = @join(',::', [
                 'files>files',
                 'loc>loc',
@@ -221,7 +221,7 @@ class Util{
                 'coveredelements>coveredelements',
             ]);
 
-            //Initialize config
+            // Initialize config
             $metrics = self::parseXml($path, [
                 'metrics' => [ 'uses' => "project.metrics[::{$metrics}]" ]
             ]);
@@ -236,7 +236,7 @@ class Util{
             //Return all available types
             return self::$cloverMetrics;
 
-        //Filter array for metric
+        // Filter array for metric
         return array_first(
             self::$cloverMetrics,
             function ($value, $key) use($metric){
@@ -282,10 +282,10 @@ class Util{
     public static function getSize($path){
 
         if( is_file($path) )
-            //Is a file
+            // Is a file
             return filesize($path);
 
-        //Is a folder
+        // Is a folder
         $size    = 0;
         $pattern = ( rtrim($path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR . '*' );
 
@@ -305,6 +305,7 @@ class Util{
      * @param int $mode
      *
      * @return string
+     * @throws IOException
      */
     public static function copyDir($source, $destination='/', $mode=0755){
 
@@ -314,13 +315,10 @@ class Util{
         $source      = rtrim($source, DIRECTORY_SEPARATOR);
 
         if( ! is_dir($destination) )
-            //Create destination if it does not exist
+            // Create destination if it does not exist
             $sys->mkdir($destination, $mode);
 
-        if( ! is_dir($destination) )
-            throw new \InvalidArgumentException("Could not create folder {$destination} ... .");
-
-        //Initialize an iterator
+        // Initialize an iterator
         $directoryIterator = new \RecursiveDirectoryIterator(
             $source,
             \RecursiveDirectoryIterator::SKIP_DOTS
@@ -336,9 +334,10 @@ class Util{
             $path = ( $destination .  DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
 
             if ( $item->isDir() )
+                // Create dir
                 $sys->mkdir($path);
             else
-                //Overwrite item
+                // Overwrite item
                 $sys->copy($item, $path);
 
         }
@@ -362,8 +361,40 @@ class Util{
             print $string;
 
         else
-            //Print to file
+            //Print to file // TODO add support for streams
             file_put_contents($channel, $string, FILE_APPEND);
+
+    }
+
+    /**
+     * Drops cached metrics and configs
+     */
+    public static function dropCaches(){
+
+        self::$loggingCfg    = NULL;
+        self::$cloverMetrics = NULL;
+
+    }
+
+    /**
+     * @param array $paths
+     *
+     * @return bool|string
+     * @throws UnreadableFileException
+     */
+    public static function findPhpUnitConfigFile($paths=[]){
+
+        $path = self::lookupFile( 'phpunit', 'xml', $paths ) ?:
+            self::lookupFile( 'phpunit', 'xml.dist', $paths ) ;
+
+        if( $path )
+            return $path;
+
+        throw new UnreadableFileException(
+            "Can't find phpunit configuration file. 
+            Please make sure there is a phpuni.xml or phpuni.xml.dist 
+            in the root of your project"
+        );
 
     }
 

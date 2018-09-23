@@ -11,6 +11,7 @@ use DevLib\Candybar\Commands\Command;
 use DevLib\Candybar\Commands\CommandInterface;
 use DevLib\Candybar\Exceptions\UnknownCommandException;
 use DevLib\Candybar\Exceptions\UnreadableFileException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use DevLib\Candybar\Exceptions\InvalidConfigurationException;
 use DevLib\Candybar\Exceptions\IncompleteInstallationException;
 
@@ -19,17 +20,17 @@ class Cli extends Command {
     /**
      * Version
      */
-    const VERSION = '0.2';
+    const VERSION = '0.3';
 
     /**
      * Codename
      */
-    const CODENAME= 'Tootsie Rolls';
+    const CODENAME= 'Grand Bar';
 
     /**
      * Associated release color
      */
-    const RELEASE_COLOR = '441103';
+    const RELEASE_COLOR = 'E92F32';
 
     /**
      * Configured commands
@@ -78,20 +79,20 @@ class Cli extends Command {
      * @throws IncompleteInstallationException
      * @throws \InvalidArgumentException
      */
-    public function install(){
+    public function install() {
 
         $installDir = 'candybar';
 
         if( ! is_dir( $installDir ) ){
 
-            //Make install
-            if(
-                $installed = Util::copyDir(
-                    __DIR__ . '/../candybar',
-                    'candybar'
-                )
-            );
-            else
+            try{
+
+                // Make install
+                Util::copyDir( __DIR__ . '/../candybar', $installDir );
+
+            }
+            catch (IOException $e){
+
                 throw new \InvalidArgumentException(
                     sprintf(
                         "Could not install Candybar in %s . 
@@ -99,6 +100,8 @@ class Cli extends Command {
                         getcwd()
                     )
                 );
+
+            }
 
         }
 
@@ -110,6 +113,7 @@ class Cli extends Command {
         if( ! is_file($installDir . DIRECTORY_SEPARATOR . 'config.php')  )
             throw new IncompleteInstallationException('config.php');
 
+        // Roger!
         $this->showVersion(TRUE);
         $this->line(
             sprintf(
@@ -182,12 +186,25 @@ class Cli extends Command {
         $version  = self::VERSION;
         $codename = self::CODENAME;
 
+        // Short version info
         $this->line(" 🍬 Candybar v{$version} ({$codename})");
 
-        if( ! $short )
+        if( ! $short ){
 
-            $this->line(" Project page:  https://github.com/adrian7/candybar");
-            $this->line(" Documentation: https://github.com/adrian7/candybar/wiki");
+            $colors = "\033[46m%1\$s\033[0m\033[43m%1\$s\033[0m\033[45m%1\$s\033[0m";
+            $colors.= "\033[42m%1\$s\033[0m\033[41m%1\$s\033[0m\033[44m%1\$s\033[0m";
+
+            $this->line(
+                sprintf( $colors, "••••••" )
+            );
+
+            // Long version info
+            $this->line(" 🏠 Project page:  https://github.com/adrian7/candybar");
+            $this->line(" 📚 Documentation: https://github.com/adrian7/candybar/wiki");
+
+            $this->eol();
+
+        }
 
         $this->versionPrinted = TRUE;
 
@@ -202,19 +219,21 @@ class Cli extends Command {
      *
      * @throws \Exception
      */
-    public static function main($exit = TRUE) {
+    public static function main( $exit = TRUE ) {
 
         $command = new static();
 
         try{
 
-            //Run command
+            // Run command
             $command->run($_SERVER['argv'], $exit);
 
         }
         catch (\Exception $e) {
-            //Exit with error
+
+            // Exit with error
             $command->exitWithError($e);
+
         }
 
     }
@@ -225,46 +244,50 @@ class Cli extends Command {
      * @param array $argv
      * @param bool $exit
      *
-     * @return int|void
+     * @return int
      * @throws \Exception
      */
     public function run(array $argv, $exit=FALSE){
 
         if( count($argv) and isset($argv[1]) and $command = trim($argv[1]) ){
 
-            //Init command
+            // Init command
             array_shift($argv);
 
             if( 'init' != $command )
-                //Configure
+                // Configure
                 $this->config();
 
-            switch ($command){
+            switch ( $command ) {
 
                 case 'init':
-                    //Install Candybar
+                    // Install Candybar
                     return $this->install();
 
                 case 'list':
-                    //List available commands
+                    // List available commands
                     return $this->showList();
 
                 case 'version':
-                    //Display version
+                case '--version':
+                    // Display version
                     return $this->showVersion();
 
                 case 'help':
-                    //Show cli/command help
+                case '--help':
+                    // Show cli/command help
                     return $this->showUsage(isset($argv[1]) ? $argv[1] : NULL);
 
                 default:
-                    //Execute command
-                    $this->execute($command, $argv);
+                    // Execute command
+                    return $this->execute($command, $argv);
+
             }
 
         }
-        else
-            $this->showUsage();
+
+        // Display usage
+        return $this->showUsage();
 
     }
 
@@ -281,53 +304,48 @@ class Cli extends Command {
 
             $handler = $this->commands[$cmd];
 
-            if( class_exists( $this->commands[$cmd] ) )
+            if( class_exists( $handler ) )
 
                 //Initialize command object
                 $handler = new $handler( $this->stdout );
-                //$handler = new $handler();
 
             else
 
-                //Class not found
-                $this->exitWithError(
-                    new \ReflectionException(
-                        "Cannot find class {$handler} for command {$cmd} ... ."
-                    )
-                );
+                // Class not found
+               throw new \ReflectionException(
+                   "Cannot find class {$handler} for command {$cmd} ... ."
+               );
 
-            //Run command with arguments
+            // Run command with arguments
             if( is_a($handler, CommandInterface::class) )
 
-                //Do-ya-thing
+                // Do-ya-thing
                 ( isset($argv[1]) and '--help' == $argv[1] ) ?
 
-                    //Show command help
+                    // Show command help
                     $handler->showHelp() :
 
-                    //Run command
+                    // Run command
                     $handler->run( $argv );
 
             else {
 
-                //No face no name no number
+                // No face no name no number
 
                 $classname = get_class($handler);
                 $required  = CommandInterface::class;
 
-                $this->exitWithError(
-                    new \ReflectionException(
-                        "Invalid handler provided `{$classname}`.
+                throw new \ReflectionException(
+                    "Invalid handler provided `{$classname}`.
                         Command handlers should implement `$required` ."
-                    )
                 );
 
             }
 
         }
         else
-            //Unrecognized command
-            $this->exitWithError( new UnknownCommandException($cmd) );
+            // Unrecognized command
+            throw new UnknownCommandException($cmd);
 
     }
 

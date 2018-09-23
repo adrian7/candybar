@@ -26,13 +26,16 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
 
     public function tearDown() {
 
-        //Cleanup output after test
-        if( file_get_contents(self::$output) )
+        // Cleanup output after test
+        if( file_exists( self::$output ) )
             file_put_contents(self::$output, '');
 
         if( getcwd() != self::$backupCWD )
-            //Restore CWD
+            // Restore CWD
             chdir(self::$backupCWD);
+
+        // Drop all cached configs
+        \DevLib\Candybar\Util::dropCaches();
 
     }
 
@@ -44,7 +47,7 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
      */
     public function setUp($force=FALSE) {
 
-        //Backup CWD
+        // Backup CWD
         self::$backupCWD = getcwd();
 
         if( $force or empty(self::$runner) )
@@ -60,12 +63,11 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
 
     /**
      * Runs a cli command and looks up keywords in the output
-     *
-     * @param string $command
+     * @param $command
      * @param array $args
      * @param array $expectKeywords
      *
-     * @return string|bool
+     * @throws Exception
      */
     protected function execute(
         $command,
@@ -74,11 +76,14 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     ){
 
         $args = array_merge([
-            'bin/executable', //Script name
-            trim($command),   //Command
+            'bin/executable', // Script name
+            trim($command),   // Command
         ], $args);
 
-        //Handle arguments
+        // Set args
+        $_SERVER['argv'] = $args;
+
+        // Handle arguments
         self::$runner->run($args);
 
         if( $expectKeywords ){
@@ -94,10 +99,10 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     }
 
     /**
-     * Run command
-     *
-     * @param string $command
+     * @param $command
      * @param array $args
+     *
+     * @throws Exception
      */
     protected function verbose($command, $args=[]){
         $this->execute($command, $args);
@@ -106,9 +111,11 @@ abstract class CliCommandTest extends \PHPUnit\Framework\TestCase{
     /**
      * Test command and capture output
      *
-     * @param string $command
+     * @param $command
      * @param array $args
      * @param array $expectKeywords
+     *
+     * @throws Exception
      */
     protected function silent($command, $args=[], $expectKeywords=[]){
         $this->execute($command, $args, $expectKeywords);

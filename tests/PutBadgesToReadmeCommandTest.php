@@ -5,7 +5,7 @@
  * @version 1.0
  */
 
-class PutBadgesInReadmeCommandTest extends CliCommandTest {
+class PutBadgesToReadmeCommandTest extends CliCommandTest {
 
     /**
      * List of badges files
@@ -25,7 +25,7 @@ class PutBadgesInReadmeCommandTest extends CliCommandTest {
 
     public static function setUpBeforeClass() {
 
-        //Generate some badges
+        // Generate some badges
 
         $colors = [
             '248888',
@@ -45,12 +45,15 @@ class PutBadgesInReadmeCommandTest extends CliCommandTest {
 
     public static function tearDownAfterClass() {
 
-        //Cleanup
+        // Cleanup
         foreach ( self::$badges as $badge )
             @unlink(self::$folder . DIRECTORY_SEPARATOR . $badge );
 
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCommand(){
 
         $template = ( __DIR__ . '/data/template.md' );
@@ -65,23 +68,70 @@ class PutBadgesInReadmeCommandTest extends CliCommandTest {
             "--img"
         ]);
 
-        //Did we made a backup?
+        // Did we made a backup?
         $this->assertFileExists($backup);
 
-        //Did the badges were replaced?
+        // Did the badges were replaced?
         $generated = @file_get_contents($output);
 
         foreach (self::$badges as $badge)
             $this->assertContains($badge, $generated);
 
-        //Did we replaced the html?
+        // Did we replaced the html?
         $this->assertContains('<img', $generated);
         $this->assertContains('src', $generated);
 
-        //Cleanup
+        // Cleanup
         @unlink($backup);
         file_put_contents($output, '# Test output' . PHP_EOL);
 
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testWarnsWhenNoBadgesFoundInTemplate(){
+
+        $template = ( __DIR__ . '/data/empty.txt' );
+        $output   = ( __DIR__ . '/data/empty-output.txt' );
+
+        $this->silent('readme:add-badges', [
+            self::$folder,
+            "--template={$template}",
+            "--output={$output}"
+        ], ["add some compatible tags"]);
+
+        @unlink($output);
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testFailsWhenFileNotFound(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->silent('readme:add-badges', [
+            self::$folder,
+            "--template=missing.template.md"
+        ]);
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testFailsWhenBadgesFolderNotFound(){
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $template = ( __DIR__ . '/data/template.md' );
+
+        $this->silent('readme:add-badges', [
+            "/is/unreadable/folder",
+            "--template={$template}"
+        ]);
     }
 
 }

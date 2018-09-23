@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit Coverage Styles - [file description]
+ * Candybar - Badge Generator helper
  * @author adrian7
  * @version 1.0
  */
@@ -20,6 +20,7 @@ class BadgeGenerator implements BadgeGeneratorInterface{
      * Available styles
      */
     const STYLE_DEFAULT     = 'svg';
+
     const STYLE_FLAT        = 'flat';
     const STYLE_PLASTIC     = 'plastic';
     const STYLE_FLAT_SQUARE = 'flat-square';
@@ -77,8 +78,10 @@ class BadgeGenerator implements BadgeGeneratorInterface{
 
         }
 
-        //Generate badge as svg
-        $poser        = new Poser([$this->renderer]);
+        // Generate badge as svg
+        $poser       = new Poser([$this->renderer]);
+
+        // TODO this hopefully throws when generation fails
         $this->badge = $poser->generate($subject, $value, $color, $this->style);
 
     }
@@ -90,11 +93,6 @@ class BadgeGenerator implements BadgeGeneratorInterface{
      * @return bool|int|string
      */
     public function save( $filename='badge.svg' ) {
-
-        if( empty($this->badge) )
-            throw new \InvalidArgumentException(
-                "You should generate a badge first - see BadgeGenerator::make()... ."
-            );
 
         if( empty( $filename ) )
             throw new \InvalidArgumentException( "Please enter a file name ... ." );
@@ -137,10 +135,7 @@ class BadgeGenerator implements BadgeGeneratorInterface{
      */
     public function getSvg(){
 
-        if( $this->badge )
-            return $this->badge->__toString();
-
-        return '';
+        return $this->badge->__toString();
 
     }
 

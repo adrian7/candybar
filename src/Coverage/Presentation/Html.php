@@ -61,8 +61,10 @@ class Html implements PresentationInterface {
     public function __construct($path) {
 
         if( is_file($path) and ( 'index.html' == basename($path) ) )
+            // Found index.html in path
             $this->base = dirname($path);
         else
+            // Assume we got a folder
             $this->base = rtrim($path, DIRECTORY_SEPARATOR);
 
         if( $this->base = realpath($this->base) );
@@ -85,7 +87,7 @@ class Html implements PresentationInterface {
             throw new \InvalidArgumentException(
                 sprintf(
                     "Can't find presentation style path at %s... .",
-                    ($this->cssBase . DIRECTORY_SEPARATOR . self::MAIN_CSS_FILE)
+                    ( $this->cssBase . DIRECTORY_SEPARATOR . self::MAIN_CSS_FILE )
                 )
             );
 
@@ -116,7 +118,10 @@ class Html implements PresentationInterface {
 
         }
 
-        return FALSE;
+        throw new \InvalidArgumentException(
+            sprintf("Can't find folder %s", $dir)
+        );
+
     }
 
     /**
@@ -136,7 +141,10 @@ class Html implements PresentationInterface {
 
         }
 
-        return FALSE;
+        throw new \InvalidArgumentException(
+            sprintf("Can't find folder %s", $dir)
+        );
+
     }
 
     /**
@@ -153,10 +161,10 @@ class Html implements PresentationInterface {
      *
      * @return null|string
      */
-    public function getCssPath($file='style.css'){
+    public function getCssPath( $file='style.css' ){
 
         return $file ?
-            (
+            realpath(
                 $this->cssBase .
                 DIRECTORY_SEPARATOR .
                 trim($file, DIRECTORY_SEPARATOR)
@@ -172,10 +180,10 @@ class Html implements PresentationInterface {
      *
      * @return null|string
      */
-    public function getJsPath($file=DIRECTORY_SEPARATOR){
+    public function getJsPath( $file=DIRECTORY_SEPARATOR ){
 
         return $file ?
-            (
+            realpath(
                 $this->jsBase .
                 DIRECTORY_SEPARATOR .
                 trim($file, DIRECTORY_SEPARATOR)
@@ -191,28 +199,26 @@ class Html implements PresentationInterface {
      *
      * @return bool
      * @throws \DevLib\Candybar\Exceptions\UnreadableFileException
+     * @throws \InvalidArgumentException
      */
-    public function setStyle($name){
+    public function setStyle( $name ) {
 
-        if(
-            $filename = Util::lookupFile(
-                $name,
-                'css',
-                $this->stylesDirs
-            )
-        )
-            //Style found, replace default styling
-            return
-                copy($filename, $this->getCssPath( self::MAIN_CSS_FILE ) );
+        $filename = Util::findFileOrFail(
+            $name,
+            $this->stylesDirs,
+            'css'
+        );
 
-        //Can't find or can't copy the file
-        throw new \InvalidArgumentException("Can't read style file for {$name} ... .");
+        // Style found, replace default styling
+        return
+            copy($filename, $this->getCssPath( self::MAIN_CSS_FILE ) );
 
     }
 
     /**
      * @param string $source
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function createStyle($source='default'){
@@ -222,6 +228,7 @@ class Html implements PresentationInterface {
     /**
      * @param $contents
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function addJsScript($contents){
@@ -231,6 +238,7 @@ class Html implements PresentationInterface {
     /**
      * @param $name
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function setTheme($name){
@@ -240,12 +248,16 @@ class Html implements PresentationInterface {
     /**
      * @param string $source
      *
+     * @codeCoverageIgnore
      * @throws UnsupportedFeatureException
      */
     public function createTheme($source='default'){
         throw new UnsupportedFeatureException("Feature not supported... .");
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setupDefaultTheme(){
         //TODO...
     }

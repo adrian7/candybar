@@ -5,6 +5,8 @@
  * @version 1.0
  */
 
+use \DevLib\Candybar\Graphics\BadgeGenerator;
+
 class BadgeGeneratorTest extends \PHPUnit\Framework\TestCase{
 
     public function testMake(){
@@ -13,20 +15,29 @@ class BadgeGeneratorTest extends \PHPUnit\Framework\TestCase{
         $text  = str_random(6);
         $value = strtoupper( str_random(3) );
 
-        //Generate badge
-        $badge = \DevLib\Candybar\Graphics\BadgeGenerator::make(
-            $text,
-            $value,
-            $color
-        );
+        foreach ([
+            BadgeGenerator::STYLE_FLAT,
+            BadgeGenerator::STYLE_FLAT_SQUARE,
+            BadgeGenerator::STYLE_PLASTIC
+        ] as $style){
 
-        //Did wwe got the expected object?
-        $this->assertInstanceOf(\DevLib\Candybar\Graphics\BadgeGenerator::class, $badge);
+            //Generate badge
+            $badge = BadgeGenerator::make(
+                $text,
+                $value,
+                $color,
+                $style
+            );
 
-        //Does the svg has our params?
-        $this->assertContains($color, $badge->getSvg());
-        $this->assertContains($text, $badge->getSvg());
-        $this->assertContains($value, $badge->getSvg());
+            //Did wwe got the expected object?
+            $this->assertInstanceOf(BadgeGenerator::class, $badge);
+
+            //Does the svg has our params?
+            $this->assertContains($color, $badge->getSvg());
+            $this->assertContains($text, $badge->getSvg());
+            $this->assertContains($value, $badge->getSvg());
+
+        }
 
     }
 
