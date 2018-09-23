@@ -227,7 +227,7 @@ abstract class Command implements CommandInterface {
 
         $longOptions = \array_keys($this->longOpts);
 
-        //Handle options
+        //Handle options (this will throw an exception for missing options values)
         list($options, $arguments) = Getopt::getopt(
             $argv,
             '',
@@ -295,13 +295,17 @@ abstract class Command implements CommandInterface {
 
                     if (
                         empty( $value )
-                        and
+                            and
                         array_key_exists( "{$name}=", $this->longOpts )
                     ) // The option requires a value
                     {
+
+                        // @codeCoverageIgnoreStart
                         throw new \InvalidArgumentException(
                             sprintf( "Option %s requires a value... .", "--{$name}" )
                         );
+                        // @codeCoverageIgnoreEnd
+
                     } else // Set option
                     {
                         $this->setOption( $name, empty( $value ) ? TRUE : $value );
@@ -309,9 +313,13 @@ abstract class Command implements CommandInterface {
 
                 } else // Unrecognized option
                 {
+
+                    // @codeCoverageIgnoreStart
                     throw new \InvalidArgumentException(
                         sprintf( "Unrecognized option %s ... .", "--{$name}" )
                     );
+                    // @codeCoverageIgnoreEnd
+
                 }
 
             }

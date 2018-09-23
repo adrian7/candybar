@@ -308,7 +308,6 @@ class Cli extends Command {
 
                 //Initialize command object
                 $handler = new $handler( $this->stdout );
-                //$handler = new $handler();
 
             else
 

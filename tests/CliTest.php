@@ -17,6 +17,36 @@ class CliTest extends CliCommandTest {
 
     }
 
+    public function testShowsSuccessMessage(){
+
+        $this->expectOutputRegex( "/success message/");
+
+        $cli = new DevLib\Candybar\Cli();
+
+        $cli->success("This is a success message!");
+
+    }
+
+    public function testShowsWarningMessage(){
+
+        $this->expectOutputRegex( "/warning message/");
+
+        $cli = new DevLib\Candybar\Cli();
+
+        $cli->warn("This is a warning message!");
+
+    }
+
+    public function testShowsInfoMessage(){
+
+        $this->expectOutputRegex( "/info message/");
+
+        $cli = new DevLib\Candybar\Cli();
+
+        $cli->info("This is an info message!");
+
+    }
+
     /**
      * @throws Exception
      */
@@ -298,7 +328,4 @@ class CliTest extends CliCommandTest {
 
     }
 
-    public function testShowsSuccessMessage(){
-        // TODO
-    }
 }
